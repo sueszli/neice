@@ -1,4 +1,11 @@
 # 
+# more stuff by me
+# 
+
+data/
+weights/
+
+# 
 # stuff from authors
 # 
 
@@ -136,7 +143,7 @@ dmypy.json
 .DS_Store
 
 # 
-# stuff by me
+# toptal
 # 
 
 # Created by https://www.toptal.com/developers/gitignore/api/r,vim,emacs,latex,linux,macos,python,windows,jetbrains+all,visualstudiocode,c++
