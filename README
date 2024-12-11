@@ -1,6 +1,21 @@
 fork: https://github.com/deezer/podcast-topic-modeling/
 at commit: 6a7865f7aad0db287a8e4d43d140d42b3a94537a
 
+
+usage:
+
+```
+docker compose up -d
+
+docker compose exec main python3.8 --version
+```
+
 patches:
 
-- `experiment` container doesn't build, dependency version mismatch. needs `pip-compile`.
+- experiment container: doesn't build
+    - the REL git dependency always pulls the latest commit, so it doesn't match the requirements.txt
+    - i took a commit from march 2022, when this paper was submitted
+
+- experiment container: needs gpu
+    - can't use docker in google colab due to error: `failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: unable to apply cgroup configuration: mkdir /sys/fs/cgroup/docker: read-only file system: unknown`
+    - just wrote from scratch with CPU only container

@@ -156,6 +156,4 @@ short presentation
 
 <!-- steps necessary to reproduce results -->
 
-`RUN pip install git+https://github.com/informagi/REL` fails due to a version missmatch.
 
-the authors didn't `pip-compile` their dependencies, which is why the installation fails.
