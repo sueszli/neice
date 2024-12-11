@@ -103,8 +103,54 @@ short presentation
         - NE makes sense because podcast metadata have a lot more named entities, and they are informative
         - Wikipedia2Vec as embeddings
 
+## methodology
 
+- $A$ has BoW representations for each document $\mathcal{D}$ and $K$ topics
+    - simple BoW matrix
+- factorization: $A \approx WH$
+- $W$ is the topic-term matrix: each row is a representation of a topic from the vocabulary $\mathcal{V}$
+- $H$ is the document-topic matrix: each row is a representation of a document from the topics
 
+*preprocessing*
+
+- identify named entities in title and description
+- link them to wikipedia entities using the "radboud entity linker" (REL) system
+    - detect NE mentions using "Flair", a named entity recognition (NER) system using embeddings
+    - find a unique candidate from list with wikipedia2vec
+    - return the Wikipedia page of a unique named entity with a confidence score that helps us to choose if we treat it as: a span of text, as a named entity, words to be processed seperately
+- clean vocabulary
+    - use NameDataset library to remove actors, athletes, etc. that are too common
+
+*computation*
+
+- apply NE-related re-weighting to the tf factor
+
+*datasets*
+
+- itunes: drop duplicate titles, drop if title and description together have less than 3 terms
+- spotify: drop duplicate titles, drop if title and description together have less than 3 terms, drop non-english podcasts (double check with "fastText", "CLD3")
+- deezer: largest
+- all have metadata (provided by creators), titles and descriptions, show name, in english-language
+- drop unpopular genres (< 300 shows)
+
+*evaluation*
+
+- common metrics for "topic coherence" for topic quality
+- normalized pointwise mutual information (NPMI) metric
+    - computed with "Palmetto" for each topic $k$ on wikipdeia
+- top words limit: 10
+- top topics limit: 20, 50, 100, 200
+- REL confidence threshold: 0.9
+- drop words that appear in less than 5 documents
+- remove stopwords using NLTK
+- default hyperparams for all models
+- original cluwords is evaluated on fastText and wikipedia2vec embeddings
+- neice config:
+    - alpha-word set to 0.34-0.4 because of cluwords (test range: 0.2, 0.3, 0.4, 0.5)
+    - alpha-ent set similarly
+- specs: Intel Xeon Gold 6134 CPU @ 3.20GHz with 32 cores and 128GB RAM
+
+## results
 
 # Experimental Setup
 
