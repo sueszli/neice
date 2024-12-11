@@ -12,10 +12,16 @@ docker compose exec main python3.8 --version
 
 patches:
 
+- experiment container: not portable
+    
+    - set arch emulation flag
+
 - experiment container: doesn't build
+    
     - the REL git dependency always pulls the latest commit, so it doesn't match the requirements.txt
     - i took a commit from march 2022, when this paper was submitted
 
 - experiment container: needs gpu
-    - can't use docker in google colab due to error: `failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: unable to apply cgroup configuration: mkdir /sys/fs/cgroup/docker: read-only file system: unknown`
-    - just wrote from scratch with CPU only container
+    
+    - can't use docker in google colab due to cgroup configuration bug (there is no way to resolve this)
+    - chose CPU only implementation

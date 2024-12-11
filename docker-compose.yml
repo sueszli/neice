@@ -73,5 +73,29 @@ services:
           word2number>=1.1 \ 
           names-dataset>=3.0.2
 
+        RUN mkdir -p /usr/local/share/nltk_data
+        RUN [ "python3", "-c", "import nltk; nltk.download('punkt', download_dir='/usr/local/share/nltk_data'); import nltk; nltk.download('averaged_perceptron_tagger', download_dir='/usr/local/share/nltk_data'); nltk.download('stopwords', download_dir='/usr/local/share/nltk_data'); nltk.download('wordnet', download_dir='/usr/local/share/nltk_data'); nltk.download('omw-1.4', download_dir='/usr/local/share/nltk_data')"]
+
+        # 
+        # evaluation
+        # 
+
+        # FROM tomcat:9.0.30-jdk8-openjdk
+        RUN apt-get update && \
+          apt-get install -y \
+          openjdk-8-jdk \
+          wget \
+          curl \
+          && rm -rf /var/lib/apt/lists/*
+
+        RUN mkdir -p /opt/tomcat && \
+          wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.30/bin/apache-tomcat-9.0.30.tar.gz -P /tmp && \
+          tar xzvf /tmp/apache-tomcat-9.0.30.tar.gz -C /opt/tomcat --strip-components=1 && \
+          rm /tmp/apache-tomcat-9.0.30.tar.gz
+
+        RUN groupadd tomcat && \
+          useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat && \
+          chown -R tomcat:tomcat /opt/tomcat
+
         # stay alive
         CMD tail -f /dev/null
