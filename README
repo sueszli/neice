@@ -57,10 +57,10 @@ rm -rf ./data/tmp
     - can't use docker in google colab due to cgroup configuration bug (there is no way to resolve this)
     - chose CPU only implementation
 
-- dataset: spotify not available anymore
+# errors
 
-    - https://podcastsdataset.byspotify.com/
-    - stopped providing since dec 2023
+- updated dependencies (REL, flairNLP) means different word vocabulary, which means different topic coherence scores than the original paper  → results changed but should have the same distribution
+- dataset: spotify not available since dec 2023 (https://podcastsdataset.byspotify.com/)
 
 # optimizations
 

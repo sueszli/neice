@@ -155,5 +155,3 @@ short presentation
 # Experimental Setup
 
 <!-- steps necessary to reproduce results -->
-
-scores should diverge from the original paper but have the same trends due to dependency updates of REL, fairNLP
