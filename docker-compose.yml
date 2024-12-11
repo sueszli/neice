@@ -1,0 +1,50 @@
+# arm64: https://docs.docker.com/desktop/troubleshoot/known-issues/
+# nvidia gpus: https://docs.docker.com/compose/gpu-support/
+
+services:
+  main:
+    container_name: main
+    volumes:
+      - type: bind
+        source: .
+        target: /workspace
+    working_dir: /workspace
+    ports:
+      - '8888:8888'
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM --platform=linux/amd64 ubuntu:20.04
+
+        ARG DEBIAN_FRONTEND=noninteractive
+        RUN apt-get update
+
+        # python 3.11
+        RUN apt-get install -y software-properties-common
+        RUN add-apt-repository ppa:deadsnakes/ppa
+        RUN apt update
+        RUN apt install -y python3.11
+
+        # RUN apt-get update && apt-get install -y --no-install-recommends \
+        #     bash \
+        #     curl \
+        #     git \
+        #     libsqlite3-0 \
+        #     libsqlite3-dev \
+        #     sqlite3 \
+        #     tar \
+        #     wget \
+        #     less \
+        #     vim \
+        #     python3-pip \
+        #     g++ \
+        #     build-essential \
+        #     make \
+        #     protobuf-compiler \
+        #     libprotobuf-dev
+
+        # WORKDIR /workspace
+        # COPY requirements.txt /workspace/requirements.txt
+        # RUN pip3 install --upgrade pip && pip3 install -r requirements.txt
+
+        CMD ["tail", "-f", "/dev/null"]
