@@ -9,6 +9,8 @@ docker compose build
 docker compose up -d
 
 docker compose exec main python3.8 --version
+docker compose exec main python3.8 -c "import torch; print(torch.__version__)"
+docker compose exec main java -version
 ```
 
 patches:
