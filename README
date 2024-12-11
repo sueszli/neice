@@ -65,6 +65,5 @@ rm -rf ./data/tmp
 # optimizations
 
 - wrote a single docker compose file with all dependencies, no need to attach the terminal to a container
-- dropped redundant shell scripts
-- simplified tutorial to a single shell script
 - formatted codebase
+- dropped redundant shell scripts
