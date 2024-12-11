@@ -1,8 +1,9 @@
 import argparse
+
 from utils import read_top_words_file
 
-def main():
 
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=str, required=True, help="Topics file")
     parser.add_argument("--output", type=str, required=True, help="Scores file")
@@ -11,10 +12,10 @@ def main():
 
     topics = read_top_words_file(args.input)
 
-    with open(args.output, 'w', encoding='utf-8') as f:
+    with open(args.output, "w", encoding="utf-8") as f:
         for topic in topics:
             f.write(f'{" ".join(topic[:args.T])}\n')
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     main()

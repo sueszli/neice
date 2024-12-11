@@ -149,13 +149,13 @@ md-to-pdf:
 
 .PHONY: fmt # format codebase
 fmt:
-	./.venv/bin/python3 -m pip install isort
-	./.venv/bin/python3 -m pip install ruff
-	./.venv/bin/python3 -m pip install autoflake
+	pip install isort
+	pip install ruff
+	pip install autoflake
 
-	./.venv/bin/python3 -m isort .
-	./.venv/bin/python3 -m autoflake --remove-all-unused-imports --recursive --in-place .
-	./.venv/bin/python3 -m ruff format --config line-length=5000 .
+	isort .
+	autoflake --remove-all-unused-imports --recursive --in-place .
+	ruff format --config line-length=5000 .
 
 .PHONY: up # pull and push changes
 up:

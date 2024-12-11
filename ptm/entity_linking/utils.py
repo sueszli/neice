@@ -2,7 +2,12 @@ import json
 
 
 # reference: https://github.com/informagi/REL/blob/921174b0c3c6526273eefa51385312e6a3e190eb/REL/utils.py#L67
-def process_results(mentions_dataset, predictions, processed, include_offset=False,):
+def process_results(
+    mentions_dataset,
+    predictions,
+    processed,
+    include_offset=False,
+):
     """
     Function that can be used to process the End-to-End results.
     :return: dictionary with results and document as key.
@@ -30,7 +35,7 @@ def process_results(mentions_dataset, predictions, processed, include_offset=Fal
                     ment["ngram"],
                     pred["prediction"],
                     pred["conf_ed"],
-                    ment["conf_md"] if "conf_md" in ment else 0.0, # filter by this value (>= 0.9)
+                    ment["conf_md"] if "conf_md" in ment else 0.0,  # filter by this value (>= 0.9)
                     ment["tag"] if "tag" in ment else "NULL",
                 )
                 res_doc.append(temp)
@@ -45,7 +50,7 @@ def dataset_preprocessing(list_examples, e=0):
     :return: dictionary with the input text.
     """
     spans = []
-    return { i+e: [example.rstrip(), spans] for i, example in enumerate(list_examples) }
+    return {i + e: [example.rstrip(), spans] for i, example in enumerate(list_examples)}
 
 
 def export_results(fname, res):
@@ -53,7 +58,7 @@ def export_results(fname, res):
     Function that can be used to export the preprocessed results
     :input: filename and dictionary with the results stored in a dictionary
     """
-    with open(fname, 'w', encoding='utf-8') as f:
+    with open(fname, "w", encoding="utf-8") as f:
         json.dump(res, f, indent=4)
 
 
@@ -62,6 +67,6 @@ def import_results(fname):
     Function that can be used to import the preprocessed results from a json file
     :return: results
     """
-    with open(fname, 'r', encoding='utf-8') as f:
+    with open(fname, "r", encoding="utf-8") as f:
         res = json.load(f)
         return res
