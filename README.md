@@ -37,14 +37,10 @@ du -sh ./weights # 62 GB
 # preprocessing: extract all named entities into a json
 # 
 
-# make venv
-# source .venv/bin/activate
-# pip install torch numpy pandas scipy nltk scikit-learn joblib langid fasttext gcld3 wikipedia2vec pyarrow fastparquet future word2number names-dataset gensim
-
-pip install git+https://github.com/informagi/REL@e81066299e7a19a3a65a0e05d68d90dacef317d3
-python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger'); nltk.download('stopwords'); nltk.download('wordnet'); nltk.download('omw-1.4')"
+docker compose exec main echo 'done'
 
 ./.venv/bin/python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/deezer.tsv datasets/named_entities weights --batch_size 128 --wiki_version wiki_2019
+
 
 
 ```
@@ -78,4 +74,8 @@ python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptr
             from flair.models import SequenceTagger
             tagger_ner = SequenceTagger.load('flair/ner-english-fast@3d3d35790f78a00ef319939b9004209d1d05f788')
             ```
-        - cryptic SQLite errors when calling `MentionDetection`, unable to patch
+        - cryptic SQLite errors when calling `MentionDetection`, unable to patch → stopped using container provided in repository
+
+- virtualenv:
+
+    - almost worked, but `gcld3` doesn't build on arm64, even if you install the protobuf dependency → stopped using virtualenv
