@@ -46,6 +46,14 @@ docker compose exec main python3 ./ptm/entity_linking/radboud_entity_linker_batc
 docker compose exec main python3 ./ptm/join_predictions.py datasets/named_entities/itunes datasets/itunes.tsv --batch_size 128 --col_title 'Name' --col_description 'Description'
 ```
 
+<!--
+https://github.com/deezer/podcast-topic-modeling
+
+https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
+
+https://github.com/chrisizeh/podcast-topic-modeling/commit/e5f4b9787445893a5ff6ff6c929e400c081406f5#diff-0eec27339904f82c8a31e71daa26bc3a2f9dbdbaa4df9d438fc1f2c7e6d03eeaR1
+-->
+
 # patches
 
 
