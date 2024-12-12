@@ -37,23 +37,29 @@ du -sh ./weights # 62 GB
 # preprocessing: extract all named entities into a json
 # 
 
-# failed attempt to use old environment
-# docker compose build
-# docker compose up -d
-# docker compose exec main python3.8 --version
-# docker compose exec main python3.8 -c "import torch; print(torch.__version__)"
-# docker compose exec main java -version
+# make venv
+# source .venv/bin/activate
+# pip install torch numpy pandas scipy nltk scikit-learn joblib langid fasttext gcld3 wikipedia2vec pyarrow fastparquet future word2number names-dataset gensim
 
-docker compose exec main python3.8 ./src/entity_linking/radboud_entity_linker_batch.py datasets/deezer.tsv datasets/named_entities weights --batch_size 128 --wiki_version wiki_2019
+pip install git+https://github.com/informagi/REL@e81066299e7a19a3a65a0e05d68d90dacef317d3
+python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger'); nltk.download('stopwords'); nltk.download('wordnet'); nltk.download('omw-1.4')"
 
-docker compose exec main python3.8 ./src/entity_linking/join_predictions.py datasets/named_entities datasets/deezer.tsv --batch_size 128
+./.venv/bin/python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/deezer.tsv datasets/named_entities weights --batch_size 128 --wiki_version wiki_2019
 
-# if none of this works - just use most up-to-date dependencies (althrough you're downloading 62 GB of weights that might not work anymore)
+
 ```
 
 # patches
 
-- container errors:
+
+
+# unable to patch
+
+- note by authors: updated dependencies (REL, flairNLP) means different word vocabulary, which means different topic coherence scores than the original paper → results changed but should have the same distribution
+
+- spotify dataset not available since dec 2023 (https://podcastsdataset.byspotify.com/)
+
+- container:
 
     - doesn't build
         - the REL git dependency always pulls the latest commit, so it doesn't match the requirements.txt
@@ -63,24 +69,13 @@ docker compose exec main python3.8 ./src/entity_linking/join_predictions.py data
     - needs gpu
         - can't use docker in google colab due to cgroup configuration bug (there is no way to resolve this)
         - chose CPU only implementation, rewrite container config
-
-- `entity_linking/radboud_entity_linker_batch.py` errors:
-
-    - REL dependency missmatch: manually find and downgrade the right dependencies, freeze pip in container into `requirements.txt`
-    - flair NER model needs `SequenceTagger` wrapper and weights from Feb 26, 2021 commit on huggingface:
-        ```python
-        from flair.models import SequenceTagger
-        tagger_ner = SequenceTagger.load('flair/ner-english-fast@3d3d35790f78a00ef319939b9004209d1d05f788')
-        ```
-    - ... couldn't continue 
-
-# unable to patch
-
-- note by authors: updated dependencies (REL, flairNLP) means different word vocabulary, which means different topic coherence scores than the original paper → results changed but should have the same distribution
-- spotify dataset not available since dec 2023 (https://podcastsdataset.byspotify.com/)
-
-# optimizations
-
-- wrote a single docker compose file with all dependencies, no need to attach the terminal to a container
-- formatted codebase
-- dropped redundant shell scripts
+    - needs to be run interactively
+        - fix with compose: `docker compose build && docker compose up -d && docker compose exec main echo 'done'`
+    - breaks on: `entity_linking/radboud_entity_linker_batch.py`:
+        - REL dependency missmatch: manually find and downgrade the right dependencies, freeze pip in container into `requirements.txt`
+        - flair NER model needs `SequenceTagger` wrapper and weights from Feb 26, 2021 commit on huggingface:
+            ```python
+            from flair.models import SequenceTagger
+            tagger_ner = SequenceTagger.load('flair/ner-english-fast@3d3d35790f78a00ef319939b9004209d1d05f788')
+            ```
+        - cryptic SQLite errors when calling `MentionDetection`, unable to patch
