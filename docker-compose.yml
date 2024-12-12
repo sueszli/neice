@@ -97,5 +97,13 @@ services:
           useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat && \
           chown -R tomcat:tomcat /opt/tomcat
 
-        # stay alive
-        CMD tail -f /dev/null
+        # 
+        # bugfix
+        # 
+
+        # REL dependency missmatch
+        RUN pip install transformers==4.28.0
+        RUN pip install flair==0.8
+
+        # dump dependencies, stay alive
+        CMD pip freeze > requirements.txt && tail -f /dev/null
