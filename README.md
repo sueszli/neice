@@ -9,12 +9,12 @@ at commit 6a7865f7aad0db287a8e4d43d140d42b3a94537a
 # download data
 # 
 
-mkdir -p datasets
-
 # deezer
+mkdir -p datasets
 curl -L -o datasets/deezer.tsv https://zenodo.org/records/5834061/files/deezer_podcast_dataset.tsv?download=1 && md5sum datasets/deezer.tsv | grep d161ba83e0dfc9efb73f993a6c387dff
 
 # itunes
+mkdir -p datasets
 curl -o datasets/itunes.csv https://raw.githubusercontent.com/odenizgiz/Podcasts-Data/master/df_popular_podcasts.csv
 docker compose exec main python3.8 -c "import pandas as pd; pd.read_csv('datasets/itunes.csv').to_csv('datasets/itunes.tsv', sep='\t', index=False)"
 rm datasets/itunes.csv
@@ -33,16 +33,17 @@ done
 rm -rf ./weights/tmp
 du -sh ./weights # 62 GB
 
-# 
-# preprocessing: extract all named entities into a json
-# 
+docker compose exec main pip install numpy==1.26.4 # numpy dtype error
 
-docker compose exec main echo 'done'
+# deezer
+mkdir -p datasets/named_entities/deezer
+docker compose exec main python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/deezer.tsv datasets/named_entities/deezer weights --batch_size 128 --wiki_version wiki_2019
+docker compose exec main python3 ./ptm/join_predictions.py datasets/named_entities/deezer datasets/deezer.tsv --batch_size 128
 
-./.venv/bin/python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/deezer.tsv datasets/named_entities weights --batch_size 128 --wiki_version wiki_2019
-
-
-
+# itunes
+mkdir -p datasets/named_entities/itunes
+docker compose exec main python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/itunes.tsv datasets/named_entities/itunes weights --batch_size 128 --wiki_version wiki_2019 --col_title 'Name' --col_description 'Description'
+docker compose exec main python3 ./ptm/join_predictions.py datasets/named_entities/itunes datasets/itunes.tsv --batch_size 128 --col_title 'Name' --col_description 'Description'
 ```
 
 # patches
