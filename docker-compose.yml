@@ -102,8 +102,8 @@ services:
         # 
 
         # REL dependency missmatch
-        RUN pip install transformers==4.28.0
-        RUN pip install flair==0.8
+        RUN pip install flair==0.11.3 transformers==4.11.1 huggingface-hub==0.0.17
+        RUN pip install numpy==1.24.4
 
         # dump dependencies, stay alive
         CMD pip freeze > requirements.txt && tail -f /dev/null
