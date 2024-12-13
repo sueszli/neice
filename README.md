@@ -62,11 +62,11 @@ https://github.com/chrisizeh/podcast-topic-modeling/commit/e5f4b9787445893a5ff6f
 
 # patches
 
-
+- new dockerfile with dependency dump for reproducibility
 
 # unable to patch
 
-- note by authors: updated dependencies (REL, flairNLP) means different word vocabulary, which means different topic coherence scores than the original paper → results changed but should have the same distribution
+- note by authors: updated dependencies (REL, flairNLP) mean a different vocabulary. this makes it impossible to reproducible exact scores from original paper. however the distribution of scores should be similar.
 
 - spotify dataset not available since dec 2023 (https://podcastsdataset.byspotify.com/)
 
