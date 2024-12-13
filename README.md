@@ -117,6 +117,9 @@ https://github.com/chrisizeh/podcast-topic-modeling/commit/e5f4b9787445893a5ff6f
 https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
 -->
 
+
+
+
 # patched
 
 - new dockerfile with dependency dump for reproducibility
@@ -129,11 +132,8 @@ https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
 # unable to patch
 
 - note by authors: updated dependencies (REL, flairNLP) mean a different vocabulary. this makes it impossible to reproducible exact scores from original paper. however the distribution of scores should be similar.
-
 - spotify dataset not available since dec 2023 (https://podcastsdataset.byspotify.com/)
-
 - provided container:
-
     - doesn't build
         - the REL git dependency always pulls the latest commit, so it doesn't match the requirements.txt
         - i took a commit from march 2022, when this paper was submitted
@@ -152,9 +152,6 @@ https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
             tagger_ner = SequenceTagger.load('flair/ner-english-fast@3d3d35790f78a00ef319939b9004209d1d05f788')
             ```
         - cryptic SQLite errors when calling `MentionDetection`, unable to patch → stopped using container provided in repository
-
 - virtualenv:
-
     - almost worked, but `gcld3` doesn't build on arm64, even if you install the protobuf dependency → stopped using virtualenv, had to use docker or conda (chose docker)
-
 - the weights in `enwiki_20180420_300d.pkl` are not byte aligned which can throw segfaults when used with some of the libraries
