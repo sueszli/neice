@@ -20,9 +20,10 @@ docker compose exec main python3.8 -c "import pandas as pd; pd.read_csv('dataset
 rm datasets/itunes.csv
 
 # 
-# download named entity recognition weights
+# entity linking
 # 
 
+# download weights
 mkdir -p weights
 mkdir -p ./weights/tmp
 for FILE in "generic" "ed-wiki-2019" "wiki_2019"
@@ -33,17 +34,22 @@ done
 rm -rf ./weights/tmp
 du -sh ./weights # 62 GB
 
-docker compose exec main pip install numpy==1.26.4 # numpy dtype error
+# fix numpy dtype error
+docker compose exec main pip install numpy==1.26.4
 
 # deezer
 mkdir -p datasets/named_entities/deezer
-docker compose exec main python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/deezer.tsv datasets/named_entities/deezer weights --batch_size 128 --wiki_version wiki_2019
-docker compose exec main python3 ./ptm/join_predictions.py datasets/named_entities/deezer datasets/deezer.tsv --batch_size 128
+docker compose exec main python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/deezer.tsv datasets/named_entities/deezer weights --batch_size 128 --wiki_version wiki_2019 # takes 3h
+docker compose exec main python3 ./ptm/entity_linking/join_predictions.py datasets/named_entities/deezer datasets/deezer.tsv --batch_size 128
 
 # itunes
 mkdir -p datasets/named_entities/itunes
-docker compose exec main python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/itunes.tsv datasets/named_entities/itunes weights --batch_size 128 --wiki_version wiki_2019 --col_title 'Name' --col_description 'Description'
+docker compose exec main python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/itunes.tsv datasets/named_entities/itunes weights --batch_size 128 --wiki_version wiki_2019 --col_title 'Name' --col_description 'Description' # takes 3h
 docker compose exec main python3 ./ptm/join_predictions.py datasets/named_entities/itunes datasets/itunes.tsv --batch_size 128 --col_title 'Name' --col_description 'Description'
+
+# 
+# data preprocessing
+# 
 ```
 
 <!--
@@ -64,7 +70,7 @@ https://github.com/chrisizeh/podcast-topic-modeling/commit/e5f4b9787445893a5ff6f
 
 - spotify dataset not available since dec 2023 (https://podcastsdataset.byspotify.com/)
 
-- container:
+- provided container:
 
     - doesn't build
         - the REL git dependency always pulls the latest commit, so it doesn't match the requirements.txt
