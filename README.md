@@ -1,4 +1,4 @@
-# NEiCE: Named Entity informed Corpus Embedding
+# neice: named entity informed corpus embedding
 
 reproducing: https://arxiv.org/pdf/2201.04419
 
@@ -30,12 +30,23 @@ do
     tar xvzf "./weights/tmp/${FILE}.tar.gz" -C ./data
 done
 rm -rf ./weights/tmp
-du -sh ./weights # 62 GB
+du -sh ./weights
 
-# preprocessing (stage 1)
+# preprocessing
 mkdir -p weights
 wget http://wikipedia2vec.s3.amazonaws.com/models/en/2018-04-20/enwiki_20180420_300d.pkl.bz2 -P ./weights
 bzip2 -d ./weights/enwiki_20180420_300d.pkl.bz2
+
+# evaluation
+mkdir -p libs
+wget --no-check-certificate https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar
+mv palmetto-0.1.0-jar-with-dependencies.jar libs
+
+# evaluation
+mkdir -p datasets/evaluation
+wget --no-check-certificate https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/Wikipedia_bd.zip -P datasets/evaluation
+unzip datasets/evaluation/Wikipedia_bd.zip
+rm -rf datasets/evaluation/Wikipedia_bd.zip
 
 #
 # entity linking
@@ -99,21 +110,10 @@ docker compose exec main python3 ./ptm/data_preprocessing/main_enrich_corpus_usi
 
 # variables:
 # - n_topics/n_components: number of topics to extract.
-#        - specifies the number of components (topics) to extract from the data
-#        - determines the dimensionality of the factorized representation
-#        - this is a crucial parameter that affects the quality of factorization and interpretability of results
 # - n_neighbours: maximum number of neighbors per cluword. (default=500)
 # - alpha_word: minimum cosine similarity score between single words to be considered neighbors in a cluword. (default=0.4)
-# - alpha_nmf: alpha parameter of NMF. (default=0.1) -> keep as is (too sensitive)
-#        - determines the regularization of the H matrix (encoding matrix)
-#        - higher values increase sparsity in the H matrix
-#        - typically set to small values like 0.00005 to avoid over-regularization
+# - alpha_nmf: alpha parameter of NMF. (default=0.1) -> keep as is (too sensitive, typically set to small values like 0.00005 to avoid over-regularization)
 # - l1_ratio_nmf: l1_ratio parameter of NMF. (default=0.5) -> keep as is
-#        - determines the mix between L1 and L2 regularization
-#       - ranges from 0 to 1
-#       - value of 1 means pure L1 regularization
-#       - value of 0 means pure L2 regularization
-#       - values between 0 and 1 give a mix of both
 # - $NEI: independent named entity promoting strategy (default=True) -> keep as is
 # - $NED: NE promoting strategy that gives maximum weight to singles words that are similar to NEs. (default=True) -> keep as is
 # - NEI_alpha: independent named entity promoting parameter. (default=1.3) -> keep as is
@@ -136,9 +136,27 @@ docker compose exec main python3 ./ptm/neice_model/main.py --corpus datasets/pre
 # evaluation
 # 
 
+# deezer
+TOPICS_MODEL_FILE=$1
+NUMBER_TOP_WORDS=$2
+WIKIPEDIA_DB_PATH=$3
 
-# evaluation
-wget --no-check-certificate https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar
+TMP_T_TOP_WORDS="/tmp/$2_top_words.txt"
+python3 extract_t_top_words.py --input $1 --output ${TMP_T_TOP_WORDS} --T $2
+TMP_CV_SCORES_RAW="/tmp/T=$2_CV_raw.txt"
+java -jar palmetto-0.1.0-jar-with-dependencies.jar $3 "C_V" ${TMP_T_TOP_WORDS} > ${TMP_CV_SCORES_RAW}
+TMP_CV_SCORES="/tmp/T=$2_CV.txt"
+echo "CV" > ${TMP_CV_SCORES}
+tail -n $2 ${TMP_CV_SCORES_RAW} | awk '{print $2}' >> ${TMP_CV_SCORES}
+TMP_FILE=${TMP_CV_SCORES}
+export TMP_FILE
+python3 -c "import pandas as pd; import os; df = pd.read_csv(os.environ['TMP_FILE']); print(df['CV'].mean()* 100)"
+
+# Input:
+
+# $TOPICS_MODEL_FILE: the file which contains the top words of each topic (top_words.txt).
+# $NUMBER_TOP_WORDS: the number of words considered per topic (T).
+# $WIKIPEDIA_DB_PATH: the path to the Wikipedia database wikipedia_bd, previously downloaded and unzipped.
 
 ```
 
@@ -229,3 +247,7 @@ done
 - virtualenv:
     - almost worked, but `gcld3` doesn't build on arm64, even if you install the protobuf dependency → stopped using virtualenv, had to use docker or conda (chose docker)
 - the weights in `enwiki_20180420_300d.pkl` are not byte aligned which can throw segfaults when used with some of the libraries
+
+# kudos
+
+thanks to `@chrisizeh` and `@DennisToma` for an alternative reproduction of the paper: https://github.com/chrisizeh/podcast-topic-modeling

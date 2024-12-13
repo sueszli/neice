@@ -1,6 +1,3 @@
-# arm64: https://docs.docker.com/desktop/troubleshoot/known-issues/
-# nvidia gpus: https://docs.docker.com/compose/gpu-support/
-
 services:
   main:
     container_name: main

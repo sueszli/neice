@@ -1,5 +1,7 @@
-# arm64: https://docs.docker.com/desktop/troubleshoot/known-issues/
-# nvidia gpus: https://docs.docker.com/compose/gpu-support/
+# 
+# this is an attempt to reconstruct the original dockerfiles provided by the authors
+# it does not work as intended, many chained sub-dependencies are incompatible since 2022
+# 
 
 services:
   main:
