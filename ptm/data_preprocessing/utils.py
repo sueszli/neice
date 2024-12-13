@@ -1,3 +1,24 @@
+import random
+import os
+import torch
+import numpy as np
+seed = 42
+random.seed(seed)
+os.environ['PYTHONHASHSEED'] = str(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
+from pathlib import Path
+def get_current_dir() -> Path:
+    try:
+        return Path(__file__).parent.absolute()
+    except NameError:
+        return Path(os.getcwd())
+
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet
 from sklearn.feature_extraction.text import CountVectorizer
@@ -16,10 +37,9 @@ class SimplePreprocessing():
     def __init__(self, documents, vocabulary_size=None, min_df=5):
 
         self.documents = documents
-        self.stopwords = load_list_words('./lexical_resources/stop_words_corenlp.txt') | frozenset(stopwords.words('english'))
+        self.stopwords = load_list_words(get_current_dir() / "lexical_resources" / "stop_words_corenlp.txt") | frozenset(stopwords.words('english'))
         self.vocabulary_size = vocabulary_size
         self.min_df = min_df
-
 
     def preprocess(self):
         preprocessed_docs_tmp = self.documents
@@ -31,7 +51,7 @@ class SimplePreprocessing():
 
         vectorizer = CountVectorizer(max_features=self.vocabulary_size, token_pattern=r'\b[a-zA-Z]{2,}\b', min_df=self.min_df)
         vectorizer.fit_transform(preprocessed_docs_tmp)
-        vocabulary_ = set(vectorizer.get_feature_names())
+        vocabulary_ = set(vectorizer.get_feature_names_out())
         
         vocabulary = set()
         for word in vocabulary_:

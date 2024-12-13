@@ -1,3 +1,17 @@
+import random
+import os
+import torch
+import numpy as np
+seed = 42
+random.seed(seed)
+os.environ['PYTHONHASHSEED'] = str(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
 import argparse
 from collections import defaultdict
 from utils import SimplePreprocessing
@@ -119,7 +133,8 @@ def main():
             d['raw_le'] = d['raw']
             d['contains_le'] = False
             d['les'] = None
-        df = df.append(d, ignore_index=True)
+        # df = df.append(d, ignore_index=True)
+        df = pd.concat([df, pd.DataFrame([d])], ignore_index=True)
 
     # Prepro raw corpus without linked entities
     documents = df['raw'].to_list()

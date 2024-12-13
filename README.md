@@ -46,33 +46,26 @@ docker compose exec main python3 ./ptm/entity_linking/radboud_entity_linker_batc
 docker compose exec main python3 ./ptm/entity_linking/join_predictions.py datasets/named_entities/itunes datasets/itunes.tsv --batch_size 128 --col_title 'Name' --col_description 'Description'
 
 #
-# data preprocessing
+# preprocessing (stage 1)
 #
 
-# store wiki2vec encoder weights
+# download weights
 mkdir -p weights
 wget http://wikipedia2vec.s3.amazonaws.com/models/en/2018-04-20/enwiki_20180420_300d.pkl.bz2 -P ./weights
 bzip2 -d ./weights/enwiki_20180420_300d.pkl.bz2
 
+# deezer
+mkdir -p datasets/preprocessed/deezer
+docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file datasets/deezer.tsv --annotated_file datasets/named_entities/deezer/linked_entities.json --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed/deezer
 
+# itunes
+mkdir -p datasets/preprocessed/itunes
+docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file datasets/itunes.tsv --annotated_file datasets/named_entities/itunes/linked_entities.json --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed/itunes
 
+#
+# preprocessing (stage 2)
+#
 
-
-# # stage 1: deezer
-# docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file $DATASET \
-#    --annotated_file $LINKED_ENTITIES_JSON \
-#    --embeddings_file_path $WIKIPEDIA2VEC_EMBEDDINGS_FILE \
-#    --path_to_save_results $OUTPUT_DIR
-
-# # stage 1: itunes
-# docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file $DATASET \
-#    --annotated_file $LINKED_ENTITIES_JSON \
-#    --embeddings_file_path $WIKIPEDIA2VEC_EMBEDDINGS_FILE \
-#    --path_to_save_results $OUTPUT_DIR
-
-
-
-# stage 2
 ```
 
 <!--
@@ -83,9 +76,13 @@ https://github.com/chrisizeh/podcast-topic-modeling/commit/e5f4b9787445893a5ff6f
 https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
 -->
 
-# patches
+# patched
 
 - new dockerfile with dependency dump for reproducibility
+- added seeds to every file (random, numpy, torch, os) for reproducibility
+- changed `df.append(d, ignore_index=True)` to `pd.concat([df, pd.DataFrame([d])], ignore_index=True)` in `main_prepro.py` since the former is deprecated and disabled
+- fixed path in `data_preprocessing/utils.py` because it was relative to the script (not the working directory), used linux path separators
+- fixed `data_preprocessing/utils.py`: replaced `get_feature_names` with `get_feature_names_out` to resolve `AttributeError` with `CountVectorizer`
 
 # unable to patch
 
@@ -116,4 +113,6 @@ https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
 
 - virtualenv:
 
-    - almost worked, but `gcld3` doesn't build on arm64, even if you install the protobuf dependency → stopped using virtualenv
+    - almost worked, but `gcld3` doesn't build on arm64, even if you install the protobuf dependency → stopped using virtualenv, had to use docker or conda (chose docker)
+
+- the weights in `enwiki_20180420_300d.pkl` are not byte aligned which can throw segfaults when used with some of the libraries
