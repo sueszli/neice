@@ -60,11 +60,12 @@ docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examp
 
 # itunes
 mkdir -p datasets/preprocessed/itunes
-docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file datasets/itunes.tsv --annotated_file datasets/named_entities/itunes/linked_entities.json --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed/itunes
+docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file datasets/itunes.tsv --annotated_file datasets/named_entities/itunes/linked_entities.json --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed/itunes --col_title 'Name' --col_description 'Description'
 
 #
 # preprocessing (stage 2)
 #
+
 
 ```
 
