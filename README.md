@@ -49,6 +49,12 @@ docker compose exec main python3 ./ptm/entity_linking/join_predictions.py datase
 # preprocessing (stage 1)
 #
 
+# variables:
+# - threshold: minimum score value to keep the linked entity. (default=0.9) -> keep as is
+# - vocab_size: vocab size. (default=None) -> keep as is
+# - min_df: keep those words in the vocabulary whose frequency will be greater than min_df. (default=5) -> keep as is
+# - min_words: minimum number of words per preprocessed document. (default=2) -> keep as is
+
 # download weights
 mkdir -p weights
 wget http://wikipedia2vec.s3.amazonaws.com/models/en/2018-04-20/enwiki_20180420_300d.pkl.bz2 -P ./weights
@@ -67,8 +73,9 @@ docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examp
 #
 
 # variables:
-# - alpha_ent: minimum cosine similarity score between single words and entities. -> (0.3, 0.4) default 0.3
-# - k: maximum number of nearest single words per entity. -> (20, 50, 100, 200, 500) default 500
+# - alpha_ent: minimum cosine similarity score between single words and entities. (default=0.3)
+# - d: word embedding size. (default=300) -> keep as is
+# - k: maximum number of nearest single words per entity. (default=500)
 
 # deezer
 mkdir -p datasets/preprocessed-2/deezer
@@ -85,6 +92,21 @@ docker compose exec main python3 ./ptm/data_preprocessing/main_enrich_corpus_usi
 #
 # neice model
 #
+
+# variables:
+# - n_topics: number of topics to extract.
+# - n_neighbours: maximum number of neighbors per cluword. (default=500)
+# - alpha_word: minimum cosine similarity score between single words to be considered neighbors in a cluword. (default=0.4)
+# - alpha_nmf: alpha parameter of NMF. (default=0.1)
+# - l1_ratio_nmf: l1_ratio parameter of NMF. (default=0.5)
+# - $NEI: independent named entity promoting strategy (default=True)
+# - $NED: NE promoting strategy that gives maximum weight to singles words that are similar to NEs. (default=True)
+# - NEI_alpha: independent named entity promoting parameter. (default=1.3)
+
+
+
+
+
 ```
 
 <!--
@@ -100,8 +122,9 @@ https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
 - new dockerfile with dependency dump for reproducibility
 - added seeds to every file (random, numpy, torch, os) for reproducibility
 - changed `df.append(d, ignore_index=True)` to `pd.concat([df, pd.DataFrame([d])], ignore_index=True)` in `main_prepro.py` since the former is deprecated and disabled
-- fixed path in `data_preprocessing/utils.py` because it was relative to the script (not the working directory), used linux path separators
+- fixed `data_preprocessing/utils.py`: path was relative to the script (not the working directory) and used linux path separators
 - fixed `data_preprocessing/utils.py`: replaced `get_feature_names` with `get_feature_names_out` to resolve `AttributeError` with `CountVectorizer`
+- fixed `neice_model.py`: replaced sklearn `NMF` argument `alpha` with `alpha_W` to resolve non existent parameter error
 
 # unable to patch
 
