@@ -1,13 +1,11 @@
-this is a patch of
-fork https://github.com/deezer/podcast-topic-modeling/
-at commit 6a7865f7aad0db287a8e4d43d140d42b3a94537a
+this is a fork of https://github.com/deezer/podcast-topic-modeling/ @ commit 6a7865f7aad0db287a8e4d43d140d42b3a94537a
 
 # usage
 
 ```bash
-# 
+#
 # download data
-# 
+#
 
 # deezer
 mkdir -p datasets
@@ -19,9 +17,9 @@ curl -o datasets/itunes.csv https://raw.githubusercontent.com/odenizgiz/Podcasts
 docker compose exec main python3.8 -c "import pandas as pd; pd.read_csv('datasets/itunes.csv').to_csv('datasets/itunes.tsv', sep='\t', index=False)"
 rm datasets/itunes.csv
 
-# 
+#
 # entity linking
-# 
+#
 
 # download weights
 mkdir -p weights
@@ -45,19 +43,44 @@ docker compose exec main python3 ./ptm/entity_linking/join_predictions.py datase
 # itunes
 mkdir -p datasets/named_entities/itunes
 docker compose exec main python3 ./ptm/entity_linking/radboud_entity_linker_batch.py datasets/itunes.tsv datasets/named_entities/itunes weights --batch_size 128 --wiki_version wiki_2019 --col_title 'Name' --col_description 'Description' # takes 3h
-docker compose exec main python3 ./ptm/join_predictions.py datasets/named_entities/itunes datasets/itunes.tsv --batch_size 128 --col_title 'Name' --col_description 'Description'
+docker compose exec main python3 ./ptm/entity_linking/join_predictions.py datasets/named_entities/itunes datasets/itunes.tsv --batch_size 128 --col_title 'Name' --col_description 'Description'
 
-# 
+#
 # data preprocessing
-# 
+#
+
+# store wiki2vec encoder weights
+mkdir -p weights
+wget http://wikipedia2vec.s3.amazonaws.com/models/en/2018-04-20/enwiki_20180420_300d.pkl.bz2 -P ./weights
+bzip2 -d ./weights/enwiki_20180420_300d.pkl.bz2
+
+
+
+
+
+# # stage 1: deezer
+# docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file $DATASET \
+#    --annotated_file $LINKED_ENTITIES_JSON \
+#    --embeddings_file_path $WIKIPEDIA2VEC_EMBEDDINGS_FILE \
+#    --path_to_save_results $OUTPUT_DIR
+
+# # stage 1: itunes
+# docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file $DATASET \
+#    --annotated_file $LINKED_ENTITIES_JSON \
+#    --embeddings_file_path $WIKIPEDIA2VEC_EMBEDDINGS_FILE \
+#    --path_to_save_results $OUTPUT_DIR
+
+
+
+# stage 2
 ```
 
 <!--
 https://github.com/deezer/podcast-topic-modeling
 
-https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
-
 https://github.com/chrisizeh/podcast-topic-modeling/commit/e5f4b9787445893a5ff6ff6c929e400c081406f5#diff-0eec27339904f82c8a31e71daa26bc3a2f9dbdbaa4df9d438fc1f2c7e6d03eeaR1
+
+https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
 -->
 
 # patches
