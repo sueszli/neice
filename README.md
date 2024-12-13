@@ -1,10 +1,14 @@
-this is a fork of https://github.com/deezer/podcast-topic-modeling/ @ commit 6a7865f7aad0db287a8e4d43d140d42b3a94537a
+# NEiCE: Named Entity informed Corpus Embedding
+
+reproducing: https://arxiv.org/pdf/2201.04419
+
+this repository is a fork of https://github.com/deezer/podcast-topic-modeling/ @ commit 6a7865f7aad0db287a8e4d43d140d42b3a94537a
 
 # usage
 
 ```bash
 #
-# download data
+# download data and weights
 #
 
 # deezer
@@ -17,11 +21,7 @@ curl -o datasets/itunes.csv https://raw.githubusercontent.com/odenizgiz/Podcasts
 docker compose exec main python3.8 -c "import pandas as pd; pd.read_csv('datasets/itunes.csv').to_csv('datasets/itunes.tsv', sep='\t', index=False)"
 rm datasets/itunes.csv
 
-#
 # entity linking
-#
-
-# download weights
 mkdir -p weights
 mkdir -p ./weights/tmp
 for FILE in "generic" "ed-wiki-2019" "wiki_2019"
@@ -31,6 +31,15 @@ do
 done
 rm -rf ./weights/tmp
 du -sh ./weights # 62 GB
+
+# preprocessing (stage 1)
+mkdir -p weights
+wget http://wikipedia2vec.s3.amazonaws.com/models/en/2018-04-20/enwiki_20180420_300d.pkl.bz2 -P ./weights
+bzip2 -d ./weights/enwiki_20180420_300d.pkl.bz2
+
+#
+# entity linking
+#
 
 # fix numpy dtype error
 docker compose exec main pip install numpy==1.26.4
@@ -54,11 +63,6 @@ docker compose exec main python3 ./ptm/entity_linking/join_predictions.py datase
 # - vocab_size: vocab size. (default=None) -> keep as is
 # - min_df: keep those words in the vocabulary whose frequency will be greater than min_df. (default=5) -> keep as is
 # - min_words: minimum number of words per preprocessed document. (default=2) -> keep as is
-
-# download weights
-mkdir -p weights
-wget http://wikipedia2vec.s3.amazonaws.com/models/en/2018-04-20/enwiki_20180420_300d.pkl.bz2 -P ./weights
-bzip2 -d ./weights/enwiki_20180420_300d.pkl.bz2
 
 # deezer
 mkdir -p datasets/preprocessed-1/deezer
@@ -94,39 +98,109 @@ docker compose exec main python3 ./ptm/data_preprocessing/main_enrich_corpus_usi
 #
 
 # variables:
-# - n_topics: number of topics to extract.
+# - n_topics/n_components: number of topics to extract.
+#        - specifies the number of components (topics) to extract from the data
+#        - determines the dimensionality of the factorized representation
+#        - this is a crucial parameter that affects the quality of factorization and interpretability of results
 # - n_neighbours: maximum number of neighbors per cluword. (default=500)
 # - alpha_word: minimum cosine similarity score between single words to be considered neighbors in a cluword. (default=0.4)
-# - alpha_nmf: alpha parameter of NMF. (default=0.1)
-# - l1_ratio_nmf: l1_ratio parameter of NMF. (default=0.5)
-# - $NEI: independent named entity promoting strategy (default=True)
-# - $NED: NE promoting strategy that gives maximum weight to singles words that are similar to NEs. (default=True)
-# - NEI_alpha: independent named entity promoting parameter. (default=1.3)
+# - alpha_nmf: alpha parameter of NMF. (default=0.1) -> keep as is (too sensitive)
+#        - determines the regularization of the H matrix (encoding matrix)
+#        - higher values increase sparsity in the H matrix
+#        - typically set to small values like 0.00005 to avoid over-regularization
+# - l1_ratio_nmf: l1_ratio parameter of NMF. (default=0.5) -> keep as is
+#        - determines the mix between L1 and L2 regularization
+#       - ranges from 0 to 1
+#       - value of 1 means pure L1 regularization
+#       - value of 0 means pure L2 regularization
+#       - values between 0 and 1 give a mix of both
+# - $NEI: independent named entity promoting strategy (default=True) -> keep as is
+# - $NED: NE promoting strategy that gives maximum weight to singles words that are similar to NEs. (default=True) -> keep as is
+# - NEI_alpha: independent named entity promoting parameter. (default=1.3) -> keep as is
+
+# deezer
+mkdir -p datasets/neice/deezer
+n_topics=50
+n_neighbours=500
+alpha_word=0.4
+docker compose exec main python3 ./ptm/neice_model/main.py --corpus datasets/preprocessed-2/deezer/prepro_enrich_entities_th0.30_k500.txt --embeddings weights/enwiki_20180420_300d.pkl --output_dir datasets/neice/deezer --mask_entities_file datasets/preprocessed-2/deezer/mask_enrich_entities_th0.30_k500.npz --vocab datasets/preprocessed-2/deezer/new_vocab_th0.30_k500.txt --n_topics $n_topics --n_neighbours $n_neighbours --alpha_word $alpha_word --NED
+
+# itunes
+mkdir -p datasets/neice/itunes
+n_topics=50
+n_neighbours=500
+alpha_word=0.4
+docker compose exec main python3 ./ptm/neice_model/main.py --corpus datasets/preprocessed-2/itunes/prepro_enrich_entities_th0.30_k500.txt --embeddings weights/enwiki_20180420_300d.pkl --output_dir datasets/neice/itunes --mask_entities_file datasets/preprocessed-2/itunes/mask_enrich_entities_th0.30_k500.npz --vocab datasets/preprocessed-2/itunes/new_vocab_th0.30_k500.txt --n_topics $n_topics --n_neighbours $n_neighbours --alpha_word $alpha_word --NED
+
+# 
+# evaluation
+# 
 
 
-
-
+# evaluation
+wget --no-check-certificate https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar
 
 ```
+
+# evaluation loop
 
 <!--
 https://github.com/deezer/podcast-topic-modeling
 
-https://github.com/chrisizeh/podcast-topic-modeling/commit/e5f4b9787445893a5ff6ff6c929e400c081406f5#diff-0eec27339904f82c8a31e71daa26bc3a2f9dbdbaa4df9d438fc1f2c7e6d03eeaR1
-
 https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
 -->
 
+run eval loop after a single iteration as shown above was successful
 
+```bash
 
+# write to ./data
+# analyze in docs
+
+for K in 20 50 100 200
+do
+
+    for alpha_ent in 0.30 0.40
+    do
+        python3 ptm/data_preprocessing/main_enrich_corpus_using_entities.py --prepro_file ${DIR}/prepro.txt \
+            --prepro_le_file ${DIR}/prepro_le.txt \
+            --vocab_file ${DIR}/vocab.txt \
+            --vocab_le_file ${DIR}/vocab_le.txt \
+            --embeddings_file_path ${DIR}/enwiki_20180420_300d.pkl \
+            --path_to_save_results ${DIR} \
+            --alpha_ent ${alpha_ent} \
+            --k ${K}
+
+        for alpha_word in 0.2 0.3 0.4 0.5
+        do
+            python3 ptm/neice_model/main.py \
+                --corpus ${DIR}/prepro_enrich_entities_th${alpha_ent}_k${K}.txt \
+                --embeddings ${DIR}/enwiki_20180420_300d.pkl \
+                --output_dir ${DIR} \
+                --mask_entities_file ${DIR}/mask_enrich_entities_th${alpha_ent}_k${K}.npz \
+                --vocab ${DIR}/new_vocab_th${alpha_ent}_k${K}.txt \
+                --n_topics ${T} \
+                --n_neighbours ${K} \
+                --alpha_word ${alpha_word} \
+                --NED
+
+            cd ptm/evaluation
+            echo "K ${K} T ${T} alpha_word ${alpha_word} alpha_ent ${alpha_ent}: " >> ../../results_deezer_${i}.txt
+            ./evaluate-topics.sh ${DIR}/top_words.txt ${T} ${DIR}/wikipedia_bd  >> ../../results_deezer_${i}.txt
+            echo "\n" >> ../../results_deezer_${i}.txt
+            cd ../../
+        done
+    done
+done
+```
 
 # patched
 
 - new dockerfile with dependency dump for reproducibility
-- added seeds to every file (random, numpy, torch, os) for reproducibility
+- added seeds to every file (random, numpy, torch, os), so a single iteration is sufficient for evaluation
 - changed `df.append(d, ignore_index=True)` to `pd.concat([df, pd.DataFrame([d])], ignore_index=True)` in `main_prepro.py` since the former is deprecated and disabled
 - fixed `data_preprocessing/utils.py`: path was relative to the script (not the working directory) and used linux path separators
-- fixed `data_preprocessing/utils.py`: replaced `get_feature_names` with `get_feature_names_out` to resolve `AttributeError` with `CountVectorizer`
+- fixed `data_preprocessing/utils.py` and `neice_model/wikipedia2vec_model.py`: replaced `get_feature_names` with `get_feature_names_out` to resolve `AttributeError` with `CountVectorizer`
 - fixed `neice_model.py`: replaced sklearn `NMF` argument `alpha` with `alpha_W` to resolve non existent parameter error
 
 # unable to patch
