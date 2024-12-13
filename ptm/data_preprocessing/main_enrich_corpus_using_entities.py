@@ -31,10 +31,12 @@ def main():
     parser.add_argument('--vocab_le_file', type=str, required=True, help='Vocab file with linked entities')
     parser.add_argument('--path_to_save_results', required=True, type=str, help='Directory to save the enirched dataset')
     parser.add_argument('--embeddings_file_path', type=str, required=True, help='Wikipedia2Vec file')
-    parser.add_argument('--alpha_ent', type=float, default=0.30, help='Minimum score value between words and entities')
+    parser.add_argument('--alpha_ent', type=float, default=-1, help='Minimum score value between words and entities')
     parser.add_argument('--d', type=int, default=300, help='Word embedding size')
-    parser.add_argument('--k', type=int, default=500, help='Maximum number of nearest words per entity')
+    parser.add_argument('--k', type=int, default=-1, help='Maximum number of nearest words per entity')
     args = parser.parse_args()
+
+    print(f"arguments: {args}")
 
     def read_file_per_line(fname):
         with open(fname, 'r', encoding='utf-8') as f:

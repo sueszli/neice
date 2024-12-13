@@ -1,6 +1,6 @@
-# 
+#
 # repeat all of this both for deezer and itunes dataset
-# 
+#
 
 cd ptm/entity_linking
 ./download-files.sh ${DIR}

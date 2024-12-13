@@ -55,16 +55,32 @@ wget http://wikipedia2vec.s3.amazonaws.com/models/en/2018-04-20/enwiki_20180420_
 bzip2 -d ./weights/enwiki_20180420_300d.pkl.bz2
 
 # deezer
-mkdir -p datasets/preprocessed/deezer
-docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file datasets/deezer.tsv --annotated_file datasets/named_entities/deezer/linked_entities.json --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed/deezer
+mkdir -p datasets/preprocessed-1/deezer
+docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file datasets/deezer.tsv --annotated_file datasets/named_entities/deezer/linked_entities.json --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed-1/deezer
 
 # itunes
-mkdir -p datasets/preprocessed/itunes
-docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file datasets/itunes.tsv --annotated_file datasets/named_entities/itunes/linked_entities.json --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed/itunes --col_title 'Name' --col_description 'Description'
+mkdir -p datasets/preprocessed-1/itunes
+docker compose exec main python3 ./ptm/data_preprocessing/main_prepro.py --examples_file datasets/itunes.tsv --annotated_file datasets/named_entities/itunes/linked_entities.json --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed-1/itunes --col_title 'Name' --col_description 'Description'
 
 #
 # preprocessing (stage 2)
 #
+
+# variables:
+# - alpha_ent: minimum cosine similarity score between single words and entities. -> (0.3, 0.4) default 0.3
+# - k: maximum number of nearest single words per entity. -> (20, 50, 100, 200, 500) default 500
+
+# deezer
+mkdir -p datasets/preprocessed-2/deezer
+alpha_ent=0.3
+k=500
+docker compose exec main python3 ./ptm/data_preprocessing/main_enrich_corpus_using_entities.py --prepro_file datasets/preprocessed-1/deezer/prepro.txt --prepro_le_file datasets/preprocessed-1/deezer/prepro_le.txt --vocab_file datasets/preprocessed-1/deezer/vocab.txt --vocab_le_file datasets/preprocessed-1/deezer/vocab_le.txt --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed-2/deezer --alpha_ent $alpha_ent --k $k
+
+# itunes
+mkdir -p datasets/preprocessed-2/itunes
+alpha_ent=0.3
+k=500
+docker compose exec main python3 ./ptm/data_preprocessing/main_enrich_corpus_using_entities.py --prepro_file datasets/preprocessed-1/itunes/prepro.txt --prepro_le_file datasets/preprocessed-1/itunes/prepro_le.txt --vocab_file datasets/preprocessed-1/itunes/vocab.txt --vocab_le_file datasets/preprocessed-1/itunes/vocab_le.txt --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed-2/itunes --alpha_ent $alpha_ent --k $k
 
 
 ```
