@@ -23,6 +23,9 @@ services:
         RUN pip3 install --upgrade pip
         # RUN pip3 install -r requirements.txt
 
+        # 
+        # experiments
+        # 
 
         RUN apt-get install -y bash curl git libsqlite3-0 libsqlite3-dev sqlite3 tar wget less vim g++ build-essential make protobuf-compiler libprotobuf-dev
 
@@ -37,5 +40,20 @@ services:
         RUN mkdir -p /usr/local/share/nltk_data
 
         RUN [ "python3", "-c", "import nltk; nltk.download('punkt', download_dir='/usr/local/share/nltk_data'); import nltk; nltk.download('averaged_perceptron_tagger', download_dir='/usr/local/share/nltk_data'); nltk.download('stopwords', download_dir='/usr/local/share/nltk_data'); nltk.download('wordnet', download_dir='/usr/local/share/nltk_data'); nltk.download('omw-1.4', download_dir='/usr/local/share/nltk_data')"]
+
+        # weird numpy dtype error
+        RUN pip install numpy==1.26.4
+
+        # 
+        # evaluation
+        # 
+
+        RUN apt-get update && \
+            apt-get install -y --no-install-recommends ca-certificates && \
+            mkdir -p /etc/ssl/certs && \
+            update-ca-certificates && \
+            apt-get install -y python3 python3-pip && \
+            apt-get install -y openjdk-8-jdk && \
+            rm -rf /var/lib/apt/lists/*
 
         CMD pip freeze > requirements.txt && tail -f /dev/null

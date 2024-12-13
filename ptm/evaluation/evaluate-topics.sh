@@ -7,7 +7,7 @@ then
     exit
 fi
 TMP_T_TOP_WORDS="/tmp/$2_top_words.txt"
-python3 extract_t_top_words.py --input $1 --output ${TMP_T_TOP_WORDS} --T $2
+python3 ./ptm/evaluation/extract_t_top_words.py --input $1 --output ${TMP_T_TOP_WORDS} --T $2
 TMP_CV_SCORES_RAW="/tmp/T=$2_CV_raw.txt"
 java -jar palmetto-0.1.0-jar-with-dependencies.jar $3 "C_V" ${TMP_T_TOP_WORDS} > ${TMP_CV_SCORES_RAW}
 TMP_CV_SCORES="/tmp/T=$2_CV.txt"

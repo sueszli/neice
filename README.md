@@ -38,22 +38,17 @@ wget http://wikipedia2vec.s3.amazonaws.com/models/en/2018-04-20/enwiki_20180420_
 bzip2 -d ./weights/enwiki_20180420_300d.pkl.bz2
 
 # evaluation
-mkdir -p libs
 wget --no-check-certificate https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar
-mv palmetto-0.1.0-jar-with-dependencies.jar libs
 
 # evaluation
 mkdir -p datasets/evaluation
 wget --no-check-certificate https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/Wikipedia_bd.zip -P datasets/evaluation
-unzip datasets/evaluation/Wikipedia_bd.zip
+unzip datasets/evaluation/Wikipedia_bd.zip -d datasets/evaluation
 rm -rf datasets/evaluation/Wikipedia_bd.zip
 
 #
 # entity linking
 #
-
-# fix numpy dtype error
-docker compose exec main pip install numpy==1.26.4
 
 # deezer
 mkdir -p datasets/named_entities/deezer
@@ -136,28 +131,18 @@ docker compose exec main python3 ./ptm/neice_model/main.py --corpus datasets/pre
 # evaluation
 # 
 
+# variables:
+# - T: cut-off value for score (similar to acc@15)
+
 # deezer
-TOPICS_MODEL_FILE=$1
-NUMBER_TOP_WORDS=$2
-WIKIPEDIA_DB_PATH=$3
+docker compose exec main chmod +x ./ptm/evaluation/evaluate-topics.sh
+T=5
+docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deezer/top_words.txt $T datasets/evaluation/wikipedia_bd
 
-TMP_T_TOP_WORDS="/tmp/$2_top_words.txt"
-python3 extract_t_top_words.py --input $1 --output ${TMP_T_TOP_WORDS} --T $2
-TMP_CV_SCORES_RAW="/tmp/T=$2_CV_raw.txt"
-java -jar palmetto-0.1.0-jar-with-dependencies.jar $3 "C_V" ${TMP_T_TOP_WORDS} > ${TMP_CV_SCORES_RAW}
-TMP_CV_SCORES="/tmp/T=$2_CV.txt"
-echo "CV" > ${TMP_CV_SCORES}
-tail -n $2 ${TMP_CV_SCORES_RAW} | awk '{print $2}' >> ${TMP_CV_SCORES}
-TMP_FILE=${TMP_CV_SCORES}
-export TMP_FILE
-python3 -c "import pandas as pd; import os; df = pd.read_csv(os.environ['TMP_FILE']); print(df['CV'].mean()* 100)"
-
-# Input:
-
-# $TOPICS_MODEL_FILE: the file which contains the top words of each topic (top_words.txt).
-# $NUMBER_TOP_WORDS: the number of words considered per topic (T).
-# $WIKIPEDIA_DB_PATH: the path to the Wikipedia database wikipedia_bd, previously downloaded and unzipped.
-
+# itunes
+docker compose exec main chmod +x ./ptm/evaluation/evaluate-topics.sh
+T=5
+docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deezer/top_words.txt $T datasets/evaluation/wikipedia_bd
 ```
 
 # evaluation loop
@@ -168,45 +153,49 @@ https://github.com/deezer/podcast-topic-modeling
 https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
 -->
 
-run eval loop after a single iteration as shown above was successful
+run eval loop after a single iteration as shown above was successful.
 
 ```bash
-
-# write to ./data
-# analyze in docs
-
-for K in 20 50 100 200
+for alpha_ent in 0.20 0.30 0.40
 do
 
-    for alpha_ent in 0.30 0.40
-    do
-        python3 ptm/data_preprocessing/main_enrich_corpus_using_entities.py --prepro_file ${DIR}/prepro.txt \
-            --prepro_le_file ${DIR}/prepro_le.txt \
-            --vocab_file ${DIR}/vocab.txt \
-            --vocab_le_file ${DIR}/vocab_le.txt \
-            --embeddings_file_path ${DIR}/enwiki_20180420_300d.pkl \
-            --path_to_save_results ${DIR} \
-            --alpha_ent ${alpha_ent} \
-            --k ${K}
+    for k in 400 500 600
 
-        for alpha_word in 0.2 0.3 0.4 0.5
+        # preprocessing (stage 2) 
+        mkdir -p datasets/preprocessed-2/deezer
+        docker compose exec main python3 ./ptm/data_preprocessing/main_enrich_corpus_using_entities.py --prepro_file datasets/preprocessed-1/deezer/prepro.txt --prepro_le_file datasets/preprocessed-1/deezer/prepro_le.txt --vocab_file datasets/preprocessed-1/deezer/vocab.txt --vocab_le_file datasets/preprocessed-1/deezer/vocab_le.txt --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed-2/deezer --alpha_ent $alpha_ent --k $k
+
+        docker compose exec main python3 ./ptm/data_preprocessing/main_enrich_corpus_using_entities.py --prepro_file datasets/preprocessed-1/itunes/prepro.txt --prepro_le_file datasets/preprocessed-1/itunes/prepro_le.txt --vocab_file datasets/preprocessed-1/itunes/vocab.txt --vocab_le_file datasets/preprocessed-1/itunes/vocab_le.txt --embeddings_file_path weights/enwiki_20180420_300d.pkl --path_to_save_results datasets/preprocessed-2/itunes --alpha_ent $alpha_ent --k $k
+
+        for n_topics in 40 50 60
         do
-            python3 ptm/neice_model/main.py \
-                --corpus ${DIR}/prepro_enrich_entities_th${alpha_ent}_k${K}.txt \
-                --embeddings ${DIR}/enwiki_20180420_300d.pkl \
-                --output_dir ${DIR} \
-                --mask_entities_file ${DIR}/mask_enrich_entities_th${alpha_ent}_k${K}.npz \
-                --vocab ${DIR}/new_vocab_th${alpha_ent}_k${K}.txt \
-                --n_topics ${T} \
-                --n_neighbours ${K} \
-                --alpha_word ${alpha_word} \
-                --NED
 
-            cd ptm/evaluation
-            echo "K ${K} T ${T} alpha_word ${alpha_word} alpha_ent ${alpha_ent}: " >> ../../results_deezer_${i}.txt
-            ./evaluate-topics.sh ${DIR}/top_words.txt ${T} ${DIR}/wikipedia_bd  >> ../../results_deezer_${i}.txt
-            echo "\n" >> ../../results_deezer_${i}.txt
-            cd ../../
+            for n_neighbours in 400 500 600
+            do
+
+                for alpha_word in 0.3 0.4 0.5
+                do
+
+                    total_combinations=3*3*3*3
+                    i=$((i+1))
+                    echo "progress: $i/$total_combinations"
+                    echo "alpha_ent $alpha_ent k $k n_topics $n_topics n_neighbours $n_neighbours alpha_word $alpha_word"
+
+                    # neice model
+                    docker compose exec main python3 ./ptm/neice_model/main.py --corpus datasets/preprocessed-2/deezer/prepro_enrich_entities_th0.30_k500.txt --embeddings weights/enwiki_20180420_300d.pkl --output_dir datasets/neice/deezer --mask_entities_file datasets/preprocessed-2/deezer/mask_enrich_entities_th0.30_k500.npz --vocab datasets/preprocessed-2/deezer/new_vocab_th0.30_k500.txt --n_topics $n_topics --n_neighbours $n_neighbours --alpha_word $alpha_word --NED
+
+                    docker compose exec main python3 ./ptm/neice_model/main.py --corpus datasets/preprocessed-2/itunes/prepro_enrich_entities_th0.30_k500.txt --embeddings weights/enwiki_20180420_300d.pkl --output_dir datasets/neice/itunes --mask_entities_file datasets/preprocessed-2/itunes/mask_enrich_entities_th0.30_k500.npz --vocab datasets/preprocessed-2/itunes/new_vocab_th0.30_k500.txt --n_topics $n_topics --n_neighbours $n_neighbours --alpha_word $alpha_word --NED
+
+                    # evaluation
+                    docker compose exec main chmod +x ./ptm/evaluation/evaluate-topics.sh
+                    T=5
+                    result_deezer=$(docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deezer/top_words.txt $T datasets/evaluation/wikipedia_bd)
+                    result_itunes=$(docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/itunes/top_words.txt $T datasets/evaluation/wikipedia_bd)
+
+                    # append csv
+                    echo "$alpha_ent,$k,$n_topics,$n_neighbours,$alpha_word,$result_deezer,$result_itunes" >> ./data/results.csv
+                done
+            done
         done
     done
 done
