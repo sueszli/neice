@@ -149,7 +149,7 @@ run the eval loop with `benchmark.sh` after a single iteration (as shown above) 
 
 beware that the evaluation loop is very slow, with each cycle taking 100-600 seconds and around 2-3 days in total to complete.
 
-thanks to `@chrisizeh` and `@DennisToma` for providing inspiration (see: https://github.com/chrisizeh/podcast-topic-modeling)
+kudos to `@chrisizeh` and `@DennisToma` for providing inspiration (see: https://github.com/chrisizeh/podcast-topic-modeling)
 
 # patch notes
 
