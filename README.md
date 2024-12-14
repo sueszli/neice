@@ -145,9 +145,14 @@ docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deez
 
 # evaluation loop
 
-run the eval loop with `benchmark.sh` after a single iteration (as shown above) was successful.
+run the eval loop `benchmark.sh` after a single iteration (as shown above) was successful.
 
-beware that the evaluation loop is very slow, with each cycle taking 100-600 seconds and around 2-3 days in total to complete.
+beware that the evaluation loop is very slow, with each cycle taking 100-600 seconds and around 2-3 days in total.
+
+```bash
+chmod +x benchmark.sh
+./benchmark.sh
+```
 
 kudos to `@chrisizeh` and `@DennisToma` for providing inspiration (see: https://github.com/chrisizeh/podcast-topic-modeling)
 
