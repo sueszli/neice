@@ -1,5 +1,3 @@
-# see table 5: https://arxiv.org/pdf/2201.04419
-
 current=0
 
 for alpha_ent in 0.30 0.40 # from paper
