@@ -131,3 +131,41 @@ https://github.com/deezer/podcast-topic-modeling
 
 https://github.com/chrisizeh/podcast-topic-modeling/commits/main/
 -->
+
+# Addendum
+
+All experiments were conducted on a consumer-grade laptop with the following specifications:
+
+```
+$ system_profiler SPSoftwareDataType SPHardwareDataType
+Software:
+
+    System Software Overview:
+
+      System Version: macOS 14.6.1 (23G93)
+      Kernel Version: Darwin 23.6.0
+      Boot Volume: Macintosh HD
+      Boot Mode: Normal
+      Computer Name: Yahya’s MacBook Pro
+      User Name: Yahya Jabary (sueszli)
+      Secure Virtual Memory: Enabled
+      System Integrity Protection: Enabled
+      Time since boot: 103 days, 2 hours, 59 minutes
+
+Hardware:
+
+    Hardware Overview:
+
+      Model Name: MacBook Pro
+      Model Identifier: Mac14,10
+      Model Number: <redacted>
+      Chip: Apple M2 Pro
+      Total Number of Cores: 12 (8 performance and 4 efficiency)
+      Memory: 16 GB
+      System Firmware Version: 10151.140.19
+      OS Loader Version: <redacted>
+      Serial Number (system): <redacted>
+      Hardware UUID: <redacted>
+      Provisioning UDID: <redacted>
+      Activation Lock Status: Disabled
+```

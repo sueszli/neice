@@ -145,14 +145,15 @@ docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deez
 
 # evaluation loop
 
-run eval loop after a single iteration as shown above was successful.
+run the eval loop with `benchmark.sh` after a single iteration (as shown above) was successful.
 
-```bash
-chmod +x ./benchmark.sh
-./benchmark.sh
-```
+beware that the evaluation loop is very slow, with each cycle taking 100-600 seconds and around 2-3 days in total to complete.
 
-# patched
+thanks to `@chrisizeh` and `@DennisToma` for providing inspiration (see: https://github.com/chrisizeh/podcast-topic-modeling)
+
+# patch notes
+
+## patched
 
 - new dockerfile with dependency dump for reproducibility
 - added seeds to every file (random, numpy, torch, os), so a single iteration is sufficient for evaluation
@@ -161,7 +162,7 @@ chmod +x ./benchmark.sh
 - fixed `data_preprocessing/utils.py` and `neice_model/wikipedia2vec_model.py`: replaced `get_feature_names` with `get_feature_names_out` to resolve `AttributeError` with `CountVectorizer`
 - fixed `neice_model.py`: replaced sklearn `NMF` argument `alpha` with `alpha_W` to resolve non existent parameter error
 
-# unable to patch
+## unable to patch
 
 - note by authors: updated dependencies (REL, flairNLP) mean a different vocabulary. this makes it impossible to reproducible exact scores from original paper. however the distribution of scores should be similar.
 - spotify dataset not available since dec 2023 (https://podcastsdataset.byspotify.com/)
@@ -187,7 +188,3 @@ chmod +x ./benchmark.sh
 - virtualenv:
     - almost worked, but `gcld3` doesn't build on arm64, even if you install the protobuf dependency → stopped using virtualenv, had to use docker or conda (chose docker)
 - the weights in `enwiki_20180420_300d.pkl` are not byte aligned which can throw segfaults when used with some of the libraries
-
-# kudos
-
-thanks to `@chrisizeh` and `@DennisToma` for an alternative reproduction of the paper: https://github.com/chrisizeh/podcast-topic-modeling
