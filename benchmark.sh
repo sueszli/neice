@@ -3,7 +3,7 @@ current=0
 for alpha_ent in 0.30 0.40 # from paper
 do
 
-    for k in 20 50 100 200 # from paper (default=500, not used in paper)
+    for k in 20 50 100 200 # from paper (default=500 is not used in paper)
     do
         start_time=$(date +%s)
 
@@ -20,7 +20,7 @@ do
         for n_topics in 10 20 50 100 # common values (default=50)
         do
 
-            for n_neighbours in 5 10 20 500 # common values (default=500, but very uncommon)
+            for n_neighbours in 5 10 20 500 # common values (default=500 is very uncommon)
             do
 
                 for alpha_word in 0.2 0.3 0.4 0.5 # from paper
