@@ -132,17 +132,15 @@ docker compose exec main python3 ./ptm/neice_model/main.py --corpus datasets/pre
 # 
 
 # variables:
-# - T: cut-off value for score (similar to acc@15)
+# - T: cut-off value for score: set to 10 because it's standard practice in topic modeling evaluation
 
 # deezer
 docker compose exec main chmod +x ./ptm/evaluation/evaluate-topics.sh
-T=5
-docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deezer/top_words.txt $T datasets/evaluation/wikipedia_bd
+docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deezer/top_words.txt 10 datasets/evaluation/wikipedia_bd
 
 # itunes
 docker compose exec main chmod +x ./ptm/evaluation/evaluate-topics.sh
-T=5
-docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deezer/top_words.txt $T datasets/evaluation/wikipedia_bd
+docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deezer/top_words.txt 10 datasets/evaluation/wikipedia_bd
 ```
 
 # evaluation loop
