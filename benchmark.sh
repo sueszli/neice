@@ -38,10 +38,9 @@ do
                     result_deezer=$(docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deezer/top_words.txt 10 datasets/evaluation/wikipedia_bd)
                     result_itunes=$(docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/itunes/top_words.txt 10 datasets/evaluation/wikipedia_bd)
 
-                    # append csv
+                    # log
                     echo "$alpha_ent,$k,$n_topics,$n_neighbours,$alpha_word,$result_deezer,$result_itunes" >> ./data/results.csv
 
-                    # log
                     end_time=$(date +%s)
                     elapsed_time=$((end_time - start_time))
                     total_iterations=$((2 * 4 * 4 * 4 * 4))
