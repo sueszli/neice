@@ -2,7 +2,7 @@
 
 reproducing: https://arxiv.org/pdf/2201.04419
 
-this repository is a fork of https://github.com/deezer/podcast-topic-modeling/ @ commit 6a7865f7aad0db287a8e4d43d140d42b3a94537a
+this repository is a fork of https://github.com/deezer/podcast-topic-modeling/ @ commit `6a7865f7aad0db287a8e4d43d140d42b3a94537a`
 
 # usage
 
