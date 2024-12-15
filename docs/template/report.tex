@@ -110,7 +110,6 @@
 %% the next command will enable that style.
 %%\citestyle{acmauthoryear}
 
-
 %%
 %% end of the preamble, start of the body of the document source.
 \begin{document}
@@ -118,7 +117,7 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Reproducing: \\ Topic Modeling on Podcast Short-Text Metadata}
+\title{Reproducing: ``Topic Modeling on Podcast Short-Text Metadata'' by Valero et al.}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -127,10 +126,10 @@
 %% "authornote" and "authornotemark" commands
 %% used to denote shared contribution to the research.
 \author{Yahya Jabary}\authornotemark[1]\email{jabaryyahya@gmail.com}\affiliation{\institution{TU Wien}\country{Austria}}
-\author{Biberger Joachim}\affiliation{\institution{TU Wien}\country{Austria}}
-\author{Reinhard Selina}\affiliation{\institution{TU Wien}\country{Austria}}
-\author{Chalissery Julia}\affiliation{\institution{TU Wien}\country{Austria}}
-\author{Ahmed Nusaiba}\affiliation{\institution{TU Wien}\country{Austria}}
+\author{Joachim Biberger}\affiliation{\institution{TU Wien}\country{Austria}}
+\author{Selina Reinhard}\affiliation{\institution{TU Wien}\country{Austria}}
+\author{Nusaiba Ahmed}\affiliation{\institution{TU Wien}\country{Austria}}
+\author{Julia Chalissery}\affiliation{\institution{TU Wien}\country{Austria}}
 
 %%
 %% The abstract is a short summary of the work to be presented in the
@@ -176,7 +175,7 @@
 %%
 %% Keywords. The author(s) should pick words that accurately describe
 %% the work being presented. Separate the keywords with commas.
-\keywords{Podcasts, Short-text, Topic modeling, Named entities}
+\keywords{Reproducibility, Information Retrieval}
 %% A "teaser" image appears between the author and affiliation
 %% information and the body of the document, and typically spans the
 %% page.
@@ -197,65 +196,17 @@
 %% information and builds the first part of the formatted document.
 \maketitle
 
-% 
-% introduction
-% 
-
-Named Entity informed Corpus Embedding (NEiCE), is a topic modeling algorithm that uses named entities (NE) to improve the quality of topics extracted from short-text content. The algorithm was introduced in the paper ``Topic Modeling on Podcast Short-Text Metadata'' by~\citet{valero2022topic} from Deezer Research. It is based on the CluWords~\cite{10.1145/3289600.3291032} algorithm, which clusters words based on their nearest neighbors. The authors claim that NeICE outperforms other topic modeling algorithms of the same class, such as Non-negative matrix factorization (NMF), Short-text topic modeling via non-negative matrix factorization (SeaNMF)~\cite{shi2018short} and Clustering words (CluWords)~\cite{10.1145/3289600.3291032}, on podcast metadata from Deezer, Spotify and iTunes.
-
-We put the claims of the authors, regarding the performance of NEiCE on the 3 datasets, to the test and report our findings in this paper. We were able to successfully reproduce the results of the original paper with a few exceptions, which we will discuss in the following sections.
+In this paper, we aim to reproduce the evaluation of the NEiCE algorithm as presented by~\citet{valero2022topic}.
 
 \section{Introduction}
 
+Named Entity informed Corpus Embedding (NEiCE), is a topic modeling algorithm that uses named entities (NE) to improve the quality of topics extracted from short-text content. The algorithm was introduced in the paper ``Topic Modeling on Podcast Short-Text Metadata'' by~\citet{valero2022topic} from Deezer Research. It is based on the CluWords~\cite{10.1145/3289600.3291032} algorithm, which clusters words based on their nearest neighbors. The authors claim that NeICE outperforms other topic modeling algorithms of the same class, such as Non-negative matrix factorization (NMF), Short-text topic modeling via non-negative matrix factorization (SeaNMF)~\cite{shi2018short} and Clustering words (CluWords)~\cite{10.1145/3289600.3291032}, on podcast metadata from Deezer, Spotify and iTunes.
 
+The motivation behind this study stems from the nature of podcast metadata, which typically consists of short text such as titles and descriptions. Traditional topic modeling algorithms often struggle with short text due to the lack of context and sparse data, even when concatenated into pseudo-documents. However, NMF-based algorithms have shown promise in handling short text more effectively compared to probabilistic models, such as the Generalized Polya Urna Dirichlet Multinomial Mixture (GPU-DMM)~\cite{10.1145/2911451.2911499}. Additionally, NMF-based algorithms offer better interpretability than neural models, such as the Negative sampling and Quantization Topic Model (NQTM)~\cite{wu2020short}. NEiCE offers an improvement over CluWords by leveraging named entities, which are more informative and coherent than regular words.
 
+\subsection{NEiCE Algorithm}
 
-
-% *algorithm survery / benchmark*
-
-% - podcast metadata (title, description, etc.) are short
-% - these algorithms deal with short data
-% - studies show that NMF-based algorithms are better than probabilistic models on short text
-% - NMF-based are more interpretable than neural models
-
-% - **pseudo-documents-based**
-%     - concatenate and use conventional algorithms
-% - **probabilistic**
-%     - generalized polya urna dirichlet multinomial mixture (GPU-DMM)
-%         - https://dl.acm.org/doi/pdf/10.1145/2911451.2911499
-% - **neural**
-%     - Negative sampling and Quantization Topic Model (NQTM)
-%         - https://aclanthology.org/2020.emnlp-main.138.pdf
-%         - neural model
-%         - quantification method to get peakier distributions for decoding
-%         - better at discovering non-repetitive topics
-% - **NMF-based**
-%     - non-negative matrix factorization (NMF)
-%         - https://citeseerx.ist.psu.edu/document?type=pdf&doi=f452c605e8ecf8cd3541ea7909d81d27deb08181
-%         - decomposes term-document bag of words matrix into two low rank matrices
-%         - first: document-topic representaiton matrix
-%         - second: topic-term representaiton matrix 
-%     - semantics assisted NMF (SeaNMF)
-%         - https://dl.acm.org/doi/pdf/10.1145/3178876.3186009
-%         - integrats word-context embeddings
-%         - focuses on the learning
-%     - clustering words (CluWords)
-%         - https://dl.acm.org/doi/pdf/10.1145/3289600.3291032
-%         - nearest neighbor search
-%     - named entity informed corpus embedding (NEiCE)
-%         - https://arxiv.org/pdf/2201.04419
-%         - based on CluWords: https://dl.acm.org/doi/abs/10.1145/3289600.3291032
-%         - named entity information in word embeddings from NMF
-%         - NE makes sense because podcast metadata have a lot more named entities, and they are informative
-%         - Wikipedia2Vec as embeddings
-
-% ## methodology
-
-% - $A$ has BoW representations for each document $\mathcal{D}$ and $K$ topics
-%     - simple BoW matrix
-% - factorization: $A \approx WH$
-% - $W$ is the topic-term matrix: each row is a representation of a topic from the vocabulary $\mathcal{V}$
-% - $H$ is the document-topic matrix: each row is a representation of a document from the topics
+% write how NEiCE works
 
 % *preprocessing*
 
@@ -296,11 +247,10 @@ We put the claims of the authors, regarding the performance of NEiCE on the 3 da
 %     - alpha-ent set similarly
 % - specs: Intel Xeon Gold 6134 CPU @ 3.20GHz with 32 cores and 128GB RAM
 
-% ## results
 
+\subsection{Evaluation}
 
-
-% https://arxiv.org/pdf/2201.04419
+In short, we want to reproduce table~\ref{tab:authors-results} and conduct a statistical analysis to evaluate our confidence in the results.
 
 \begin{table}[h]
   \centering
@@ -319,34 +269,16 @@ We put the claims of the authors, regarding the performance of NEiCE on the 3 da
       NEiCE (0.5, 0.4) & 56.3 & 60.6 & 54.9 & 53.3 & 55.0 & 49.9 & 46.7 & 45.0 & 50.5 & 52.0 & 48.7 & 46.1 \\
       \bottomrule
   \end{tabular}
-  \caption{NEiCE dataset performance on Deezer, Spotify, and iTunes}
-  \label{tab:neice-performance}
+  \caption{Topic coherence scores $C_V$ (in \%) obtained by NEiCE for each ($\alpha^{word}$,$\alpha^{ent}$) configuration on the Deezer, Spotify and iTunes datasets \textendash{} named ``Table 5'' in the original paper.}
+  \label{tab:authors-results}
 \end{table}
 
 
+\section{Strategies}
 
+\section{Difficulties}
 
-
-
-
-% # Experimental Setup
-
-% <!-- steps necessary to reproduce results -->
-
-
-% # evaluation loop
-
-% run the eval loop `benchmark.sh` after a single iteration (as shown above) was successful.
-
-% beware that the evaluation loop is very slow, with each cycle taking 100-600 seconds and around 2-3 days in total.
-
-% ```bash
-% chmod +x benchmark.sh
-% ./benchmark.sh
-% ```
-
-% kudos to `@chrisizeh` and `@DennisToma` for providing inspiration (see: https://github.com/chrisizeh/podcast-topic-modeling)
-
+% how we approached the reproduction
 
 
 
@@ -387,14 +319,15 @@ We put the claims of the authors, regarding the performance of NEiCE on the 3 da
 % - virtualenv:
 %     - almost worked, but `gcld3` doesn't build on arm64, even if you install the protobuf dependency → stopped using virtualenv, had to use docker or conda (chose docker)
 % - the weights in `enwiki_20180420_300d.pkl` are not byte aligned which can throw segfaults when used with some of the libraries
+% - evaluation loop is very slow, with each cycle taking 100-600 seconds and around 2-3 days in total.
 
 
 
 
 
+\section{Key Findings}
 
-
-
+\section{Conclusion}
 
 
 
