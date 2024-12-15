@@ -272,8 +272,6 @@ Table~\ref{tab:authors-results} shows the topic coherence scores $C_V$ obtained 
 
 \section{Strategies}
 
-% rewrite. use a casual but academic tone.
-
 Our approach to reproducing the results involves closely following the steps outlined in the original paper and making reasonable decisions when encountering ambiguities or issues. Afterward, we will perform a statistical analysis to assess our confidence in the reproduced results.
 
 Fortunately, the authors have made their source code available on GitHub\footnote{https://github.com/deezer/podcast-topic-modeling}, which saved us from having to write any code from scratch. They did not implement the other baseline algorithms but provided links to the original papers. Due to resource constraints, we decided to focus solely on reproducing the NEiCE results, as presented in Table 5 from the original paper.
@@ -284,51 +282,44 @@ In the next section, we discuss the difficulties we encountered while following 
 
 \section{Difficulties}
 
-...
+\subsection{Unresolvable Issues}
+
+% rewrite. use a casual but academic tone.
+
+Some difficulties we faced were not resolvable.
+
+\paragraph{Spotify Dataset Unavailability.} The Spotify dataset has been unavailable since December 2023\footnote{https://podcastsdataset.byspotify.com/}. This means we were constrained to the Deezer and iTunes datasets.
+
+\paragraph{Non-Byte-Aligned Weights.} The weights in \texttt{enwiki\_20180420\_300d.pkl} are not byte-aligned, which can cause inaccuracies and segfaults when used with PyTorch or other common libraries. This means we can not guarantee the correctness of the results obtained using these weights.
+
+\paragraph{Missing Dependency Lock renders Container Unusable.} The provided Docker container lacks a compiled or locked dependency file, making it near impossible to ensure dependency version compatibility. The REL dependency, cloned via git, does not specify a commit tag, which adds to the complexity since it relies on various other libraries. We managed to work around this by checking the open-source commit history and selecting a commit from early 2022, around the time the paper was published. However, this did not resolve all issues. A similar issue was encountered with the NER model from Flair, which requires a specific commit hash from the Huggingface repository. This was not specified in the container, so we had to manually find the correct commit hash by checking the date. However, a dependency mismatch in \texttt{entity\_linking/radboud\_entity\_linker\_batch.py} caused cryptic SQLite errors when calling \texttt{MentionDetection}, which we were unable to patch. This ultimately rendered the provided Docker container unusable, after spending several days manually shotgun-debugging dependency mismatches.
+
+\paragraph{Misconfigured GPU Container.} We were unable to leverage the GPU with the provided Docker container, both on our local machine and on Google Colab. The latter was due to the cgroup configuration bug, which prevents the use of Docker containers with GPU support. We had to rewrite the container configuration to use the CPU-only implementation. This significantly increased the time required for evaluation. This was further exacerbated by the slow evaluation loop, with each cycle taking 100-600 seconds and the entire evaluation process taking around \underline{2-3 days in total} to complete.
+
+\paragraph{Non-portable Container Configuration.} The provided Docker container was not portable across different architectures. We had to set the arch emulation flag to make it work on ARM64 machines. Specifically, the \texttt{gcld3} library does not build on ARM64, even if the \texttt{protobuf} dependency is installed.
+
+Ultimately this meant not having any information, neither about the Python version nor the dependency versions used in the original paper. This in itself vastly reduces our chances of achieving the same results as reported by the authors.
 
 \subsection{Resolved Issues}
 
-\subsection{Unresolvable Issues}
-
-% list all issues encountered in an itemized format
 
 % # patch notes
 
 % ## patched
 
 % - new dockerfile with dependency dump for reproducibility
+% - needs to be run interactively
+%         - fix with compose: `docker compose build && docker compose up -d && docker compose exec main echo 'done'`
 % - added seeds to every file (random, numpy, torch, os), so a single iteration is sufficient for evaluation
 % - changed `df.append(d, ignore_index=True)` to `pd.concat([df, pd.DataFrame([d])], ignore_index=True)` in `main_prepro.py` since the former is deprecated and disabled
 % - fixed `data_preprocessing/utils.py`: path was relative to the script (not the working directory) and used linux path separators
 % - fixed `data_preprocessing/utils.py` and `neice_model/wikipedia2vec_model.py`: replaced `get_feature_names` with `get_feature_names_out` to resolve `AttributeError` with `CountVectorizer`
 % - fixed `neice_model.py`: replaced sklearn `NMF` argument `alpha` with `alpha_W` to resolve non existent parameter error
-
-% ## unable to patch
-
-% - spotify dataset not available since dec 2023 (https://podcastsdataset.byspotify.com/)
-% - provided container:
-%     - doesn't build
-%         - the REL git dependency always pulls the latest commit, so it doesn't match the requirements.txt
-%         - i took a commit from march 2022, when this paper was submitted
-%     - not portable
-%         - set arch emulation flag so it works on arm64
-%     - needs gpu
-%         - can't use docker in google colab due to cgroup configuration bug (there is no way to resolve this)
-%         - chose CPU only implementation, rewrite container config
-%     - needs to be run interactively
-%         - fix with compose: `docker compose build && docker compose up -d && docker compose exec main echo 'done'`
-%     - breaks on: `entity_linking/radboud_entity_linker_batch.py`:
-%         - REL dependency missmatch: manually find and downgrade the right dependencies, freeze pip in container into `requirements.txt`
-%         - flair NER model needs `SequenceTagger` wrapper and weights from Feb 26, 2021 commit on huggingface:
+%  - flair NER model needs `SequenceTagger` wrapper and weights from Feb 26, 2021 commit on huggingface:
 %             ```python
 %             from flair.models import SequenceTagger
 %             tagger_ner = SequenceTagger.load('flair/ner-english-fast@3d3d35790f78a00ef319939b9004209d1d05f788')
 %             ```
-%         - cryptic SQLite errors when calling `MentionDetection`, unable to patch → stopped using container provided in repository
-% - virtualenv:
-%     - almost worked, but `gcld3` doesn't build on arm64, even if you install the protobuf dependency → stopped using virtualenv, had to use docker or conda (chose docker)
-% - the weights in `enwiki_20180420_300d.pkl` are not byte aligned which can throw segfaults when used with some of the libraries
-% - evaluation loop is very slow, with each cycle taking 100-600 seconds and around 2-3 days in total.
 
 
 
