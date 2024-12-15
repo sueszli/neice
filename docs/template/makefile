@@ -1,9 +1,9 @@
 .PHONY: pdf
 pdf:
-	pdflatex sample-sigconf
-	bibtex sample-sigconf
-	pdflatex sample-sigconf
-	pdflatex sample-sigconf
+	pdflatex report
+	bibtex report
+	pdflatex report
+	pdflatex report
 	rm -f *.aux *.log *.bbl *.blg *.out
 
 .PHONY: up

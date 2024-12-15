@@ -1,12 +1,3 @@
-# neice: named entity informed corpus embedding
-
-reproducing: https://arxiv.org/pdf/2201.04419
-
-this repository is a fork of https://github.com/deezer/podcast-topic-modeling/ @ commit `6a7865f7aad0db287a8e4d43d140d42b3a94537a`
-
-# usage
-
-```bash
 #
 # download data and weights
 #
@@ -132,7 +123,7 @@ docker compose exec main python3 ./ptm/neice_model/main.py --corpus datasets/pre
 # 
 
 # variables:
-# - T: cut-off value for score: set to 10 because it's standard practice in topic modeling evaluation
+# - T: cut-off value for score: 10 (in the paper)
 
 # deezer
 docker compose exec main chmod +x ./ptm/evaluation/evaluate-topics.sh
@@ -141,55 +132,3 @@ docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deez
 # itunes
 docker compose exec main chmod +x ./ptm/evaluation/evaluate-topics.sh
 docker compose exec main ./ptm/evaluation/evaluate-topics.sh datasets/neice/deezer/top_words.txt 10 datasets/evaluation/wikipedia_bd
-```
-
-# evaluation loop
-
-run the eval loop `benchmark.sh` after a single iteration (as shown above) was successful.
-
-beware that the evaluation loop is very slow, with each cycle taking 100-600 seconds and around 2-3 days in total.
-
-```bash
-chmod +x benchmark.sh
-./benchmark.sh
-```
-
-kudos to `@chrisizeh` and `@DennisToma` for providing inspiration (see: https://github.com/chrisizeh/podcast-topic-modeling)
-
-# patch notes
-
-## patched
-
-- new dockerfile with dependency dump for reproducibility
-- added seeds to every file (random, numpy, torch, os), so a single iteration is sufficient for evaluation
-- changed `df.append(d, ignore_index=True)` to `pd.concat([df, pd.DataFrame([d])], ignore_index=True)` in `main_prepro.py` since the former is deprecated and disabled
-- fixed `data_preprocessing/utils.py`: path was relative to the script (not the working directory) and used linux path separators
-- fixed `data_preprocessing/utils.py` and `neice_model/wikipedia2vec_model.py`: replaced `get_feature_names` with `get_feature_names_out` to resolve `AttributeError` with `CountVectorizer`
-- fixed `neice_model.py`: replaced sklearn `NMF` argument `alpha` with `alpha_W` to resolve non existent parameter error
-
-## unable to patch
-
-- note by authors: updated dependencies (REL, flairNLP) mean a different vocabulary. this makes it impossible to reproducible exact scores from original paper. however the distribution of scores should be similar.
-- spotify dataset not available since dec 2023 (https://podcastsdataset.byspotify.com/)
-- provided container:
-    - doesn't build
-        - the REL git dependency always pulls the latest commit, so it doesn't match the requirements.txt
-        - i took a commit from march 2022, when this paper was submitted
-    - not portable
-        - set arch emulation flag so it works on arm64
-    - needs gpu
-        - can't use docker in google colab due to cgroup configuration bug (there is no way to resolve this)
-        - chose CPU only implementation, rewrite container config
-    - needs to be run interactively
-        - fix with compose: `docker compose build && docker compose up -d && docker compose exec main echo 'done'`
-    - breaks on: `entity_linking/radboud_entity_linker_batch.py`:
-        - REL dependency missmatch: manually find and downgrade the right dependencies, freeze pip in container into `requirements.txt`
-        - flair NER model needs `SequenceTagger` wrapper and weights from Feb 26, 2021 commit on huggingface:
-            ```python
-            from flair.models import SequenceTagger
-            tagger_ner = SequenceTagger.load('flair/ner-english-fast@3d3d35790f78a00ef319939b9004209d1d05f788')
-            ```
-        - cryptic SQLite errors when calling `MentionDetection`, unable to patch → stopped using container provided in repository
-- virtualenv:
-    - almost worked, but `gcld3` doesn't build on arm64, even if you install the protobuf dependency → stopped using virtualenv, had to use docker or conda (chose docker)
-- the weights in `enwiki_20180420_300d.pkl` are not byte aligned which can throw segfaults when used with some of the libraries
