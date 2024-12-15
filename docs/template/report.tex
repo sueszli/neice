@@ -270,11 +270,27 @@ Table~\ref{tab:authors-results} shows the topic coherence scores $C_V$ obtained 
   \label{tab:authors-results}
 \end{table}
 
-\section{Strategies \& Difficulties}
+\section{Strategies}
 
-% the code was provided by them
+% rewrite. use a casual but academic tone.
 
+Our approach to reproducing the results involves closely following the steps outlined in the original paper and making reasonable decisions when encountering ambiguities or issues. Afterward, we will perform a statistical analysis to assess our confidence in the reproduced results.
 
+Fortunately, the authors have made their source code available on GitHub\footnote{https://github.com/deezer/podcast-topic-modeling}, which saved us from having to write any code from scratch. They did not implement the other baseline algorithms but provided links to the original papers. Due to resource constraints, we decided to focus solely on reproducing the NEiCE results, as presented in Table 5 from the original paper.
+
+The README provides clear instructions on how to reproduce the results. Each file is well-commented, and there are two Docker environments: one for training and one for evaluation. Links to the datasets and library binaries are provided. To reproduce the results, one must set up the environment, follow the instructions and apply the hyperparameters as specified in the paper. However, the authors note that due to updated dependencies (REL, flairNLP), the vocabulary has changed and exact scores may not be reproducible. We expect distribution of scores to be similar.
+
+In the next section, we discuss the difficulties we encountered while following the instructions provided by the authors.
+
+\section{Difficulties}
+
+...
+
+\subsection{Resolved Issues}
+
+\subsection{Unresolvable Issues}
+
+% list all issues encountered in an itemized format
 
 % # patch notes
 
@@ -289,7 +305,6 @@ Table~\ref{tab:authors-results} shows the topic coherence scores $C_V$ obtained 
 
 % ## unable to patch
 
-% - note by authors: updated dependencies (REL, flairNLP) mean a different vocabulary. this makes it impossible to reproducible exact scores from original paper. however the distribution of scores should be similar.
 % - spotify dataset not available since dec 2023 (https://podcastsdataset.byspotify.com/)
 % - provided container:
 %     - doesn't build
@@ -320,6 +335,8 @@ Table~\ref{tab:authors-results} shows the topic coherence scores $C_V$ obtained 
 
 
 \section{Key Findings}
+
+% statistical analysis
 
 \section{Conclusion}
 
