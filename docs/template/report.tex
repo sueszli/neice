@@ -285,9 +285,11 @@ Fortunately, the authors have made their source code available on GitHub\footnot
 
 The README provides clear instructions on how to reproduce the results. Each file is well-commented, and there are two Docker environments: one for training and one for evaluation. Links to the datasets and library binaries are provided. To reproduce the results, one must set up the environment, follow the instructions and apply the hyperparameters as specified in the paper. However, the authors note that due to updated dependencies (REL, flairNLP), the vocabulary has changed and exact scores may not be reproducible. We expect distribution of scores to be similar.
 
-In the next section, we discuss the difficulties we encountered while following the instructions provided by the authors.
+All experiments were conducted on a MacBook Pro with an Apple M2 Pro chip and 16 GB of memory, running macOS 14.6.1 (23G93).
 
 \section{Difficulties}
+
+In this section, we discuss the difficulties we encountered while following the instructions provided by the authors.
 
 \subsection{Unresolvable Issues}
 
@@ -319,35 +321,6 @@ Specifically, we had to replace the deprecated ``df.append(d, ignore\_index=True
 
 % statistical analysis
 
-We computed 512 possible hyperparameter configurations.
-
-
-% Results for Deezer Scores:
-% T-test: statistic=0.2283, p-value=0.8194
-% Confidence intervals (95.0%):
-%   Actual: (51.9947, 52.3533)
-%   Expected: (51.8943, 52.3832)
-% Variances:
-%   Actual: 4.255413
-%   Expected: 7.909005
-% KS-test: statistic=0.2035, p-value=0.0000
-
-% Results for iTunes Scores:
-% T-test: statistic=14.4127, p-value=0.0000
-% Confidence intervals (95.0%):
-%   Actual: (51.1179, 51.4063)
-%   Expected: (49.3459, 49.7190)
-% Variances:
-%   Actual: 2.751468
-%   Expected: 4.607805
-% KS-test: statistic=0.4521, p-value=0.0000
-% iTunes Scores Statistics:
-% Actual scores count: 511
-% Non-null actual scores: 511
-% Sample of actual scores: [51.6682, 51.369600000000005, 51.4062, 51.432599999999994, 52.913999999999994]
-
-
-% add figure
 \begin{figure}[h]
   \centering
   \includegraphics[width=1\linewidth]{figures/diff.png}
@@ -370,15 +343,10 @@ We computed 512 possible hyperparameter configurations.
 \end{figure}
 
 
-All experiments were conducted on a MacBook Pro with an Apple M2 Pro chip and 16 GB of memory, running macOS 14.6.1 (23G93).
 
 \section{Conclusion}
 
 
-
-
-
-%%
 %% The acknowledgments section is defined using the "acks" environment
 %% (and NOT an unnumbered section). This ensures the proper
 %% identification of the section in the article metadata and the
