@@ -206,29 +206,39 @@ The motivation behind this study stems from the nature of podcast metadata, whic
 
 \subsection{NEiCE Algorithm}
 
-% write how NEiCE works
+The NEiCE algorithm consists of a (1) preprocessing stage and a (2) topic modeling stage. The preprocessing stage prepares the podcast metadata for topic modeling by enriching the text with named entities, generating contextualized word embeddings and creating document-level representations. The topic modeling stage then applies Non-negative Matrix Factorization (NMF) to discover relevant topics from the preprocessed data.
 
-% *preprocessing*
+\subsubsection{Preprocessing Stage}
 
-% - identify named entities in title and description
-% - link them to wikipedia entities using the "radboud entity linker" (REL) system
-%     - detect NE mentions using "Flair", a named entity recognition (NER) system using embeddings
-%     - find a unique candidate from list with wikipedia2vec
-%     - return the Wikipedia page of a unique named entity with a confidence score that helps us to choose if we treat it as: a span of text, as a named entity, words to be processed seperately
-% - clean vocabulary
-%     - use NameDataset library to remove actors, athletes, etc. that are too common
+The preprocessing stage begins with named entity identification in both the title and description fields of podcast metadata. The system employs the Radboud Entity Linker (REL) library for linking these entities to Wikipedia entries. Within this linking process, the Flair library, which utilizes embeddings, performs Named Entity Recognition (NER) to detect entity mentions. It then uses wikipedia2vec to identify unique candidates from a list of potential matches.
+
+For each identified named entity, the system generates a Wikipedia page reference along with a confidence score. This score is crucial as it determines how the entity will be treated in subsequent processing \textendash{} either as a simple text span, as a confirmed named entity, or as individual words requiring separate processing.
+
+The vocabulary cleaning phase incorporates the NameDataset library to eliminate overly common named entities such as actors and athletes that might not contribute meaningfully to topic identification. Following the cleaning process, the system applies a specialized NE-related re-weighting to the term frequency ($tf$) factor.
+
+The preprocessing stage handles different datasets with specific criteria. For both iTunes and Spotify datasets, the system removes duplicate titles and eliminates entries where the combined title and description contain fewer than three terms. The Spotify dataset undergoes additional language filtering, utilizing both fastText and CLD3 to ensure only English-language podcasts are retained. The Deezer dataset, which is the largest among the three, contains similar metadata including creator-provided information, titles, descriptions and show names in English. Across all datasets, genres with fewer than 300 shows are excluded to ensure robust topic modeling.
+
+
+
+% read: https://arxiv.org/abs/2201.04419
+
+% explain how the Topic Modeling Stage works. use same notation, use formal language, use the same notation.
+
+% use full sentences. no enumerations. no itemizations. no headers.
+
+
+
+\subsubsection{Topic Modeling Stage}
+
 
 % *computation*
 
 % - apply NE-related re-weighting to the tf factor
 
-% *datasets*
 
-% - itunes: drop duplicate titles, drop if title and description together have less than 3 terms
-% - spotify: drop duplicate titles, drop if title and description together have less than 3 terms, drop non-english podcasts (double check with "fastText", "CLD3")
-% - deezer: largest
-% - all have metadata (provided by creators), titles and descriptions, show name, in english-language
-% - drop unpopular genres (< 300 shows)
+
+
+\subsection{Evaluation}
 
 % *evaluation*
 
@@ -247,8 +257,7 @@ The motivation behind this study stems from the nature of podcast metadata, whic
 %     - alpha-ent set similarly
 % - specs: Intel Xeon Gold 6134 CPU @ 3.20GHz with 32 cores and 128GB RAM
 
-
-\subsection{Evaluation}
+% For evaluation purposes, the system implements specific preprocessing parameters: a REL confidence threshold of 0.9, removal of words appearing in fewer than 5 documents, and elimination of stopwords using NLTK. The NEiCE configuration employs alpha-word values between 0.34-0.4, based on cluwords testing across a range of 0.2 to 0.5, with alpha-ent parameters set similarly.
 
 In short, we want to reproduce table~\ref{tab:authors-results} and conduct a statistical analysis to evaluate our confidence in the results.
 
