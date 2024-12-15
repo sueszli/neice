@@ -1,6 +1,15 @@
-neice: named entity informed corpus embedding
+reproducing "Topic Modeling on Podcast Short-Text Metadata" by Valero et al. from Deezer Research (arXiv:2201.04419)
 
+check out the report: https://sueszli.github.io/neice/docs/template/report.pdf
 
-
-reproducing: https://arxiv.org/pdf/2201.04419
 this repository is a fork of https://github.com/deezer/podcast-topic-modeling/ @ commit `6a7865f7aad0db287a8e4d43d140d42b3a94537a`
+
+                     /|
+       =  =  =      / |
+  ____| || || |____/  | -_-_-_-_-_-_   
+|)----| || || |____   |                
+  ((  | || || |  ))\  | _-_-_-_-_-_-
+   \\_|_||_||_|_//  \ |
+    \___________/    \|
+
+to execute the code run `benchmark-single.sh && benchmark.sh` in the root directory.
