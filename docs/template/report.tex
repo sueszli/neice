@@ -137,7 +137,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-  ...
+  In this study, we set out to reproduce the evaluation of the NEiCE algorithm as detailed by Valero et al. in their paper "Topic Modeling on Podcast Short-Text Metadata". Our focus was on replicating the results using the Deezer and iTunes datasets. We found that our reproduction of the Deezer dataset scores was fairly successful, albeit with some minor discrepancies. However, the reproduction of the iTunes dataset scores revealed significant differences from the original results. These findings suggest that while the NEiCE algorithm's performance on the Deezer dataset can be reliably reproduced, further investigation is needed to understand the variations observed in the iTunes dataset. Our study highlights the importance of reproducibility in research and the need for transparent reporting of methods and results to ensure the reliability of scientific findings.
 \end{abstract}
 
 %%
@@ -177,7 +177,7 @@
 %%
 %% Keywords. The author(s) should pick words that accurately describe
 %% the work being presented. Separate the keywords with commas.
-\keywords{Reproducibility, Information Retrieval}
+% \keywords{Reproducibility, Information Retrieval}
 %% A "teaser" image appears between the author and affiliation
 %% information and the body of the document and typically spans the
 %% page.
@@ -250,6 +250,7 @@ Table~\ref{tab:authors-results} shows the topic coherence scores $C_V$ obtained 
 
 \begin{table}[h]
   \centering
+  \begin{small}
   \begin{tabular}{l|rrrr|rrrr|rrrr}
       \toprule
       Dataset & \multicolumn{4}{c}{Deezer} & \multicolumn{4}{c}{Spotify} & \multicolumn{4}{c}{iTunes} \\
@@ -266,6 +267,7 @@ Table~\ref{tab:authors-results} shows the topic coherence scores $C_V$ obtained 
       NEiCE (0.5, 0.4) & 56.3 & 60.6 & 54.9 & 53.3 & 55.0 & 49.9 & 46.7 & 45.0 & 50.5 & 52.0 & 48.7 & 46.1 \\
       \bottomrule
   \end{tabular}
+  \end{small}
   \caption{Topic coherence scores $C_V$ (in \%) obtained by NEiCE for each ($\alpha^{word}$,$\alpha^{ent}$) configuration on the Deezer, Spotify and iTunes datasets as reported by~\citet{valero2022topic} (Table 5).}
   \label{tab:authors-results}
 \end{table}
@@ -283,7 +285,7 @@ Specifically, the following assumptions on hyperparameters and configurations ha
 
 Fortunately, the authors have made their source code available on GitHub\footnote{https://github.com/deezer/podcast-topic-modeling}, which saved us from having to write any code from scratch. They did not implement the other baseline algorithms but provided links to the original papers. Due to resource constraints, we decided to focus solely on reproducing the NEiCE results, as presented in Table 5 from the original paper.
 
-The README provides clear instructions on how to reproduce the results. Each file is well-commented, and there are two Docker environments: one for training and one for evaluation. Links to the datasets and library binaries are provided. To reproduce the results, one must set up the environment, follow the instructions and apply the hyperparameters as specified in the paper. However, the authors note that due to updated dependencies (REL, flairNLP), the vocabulary has changed and exact scores may not be reproducible. We expect distribution of scores to be similar.
+The README provides clear instructions on how to reproduce the results. Each file is well-commented and there are two Docker environments: one for training and one for evaluation. Links to the datasets and library binaries are provided. To reproduce the results, one must set up the environment, follow the instructions and apply the hyperparameters as specified in the paper. However, the authors note that due to updated dependencies (REL, flairNLP), the vocabulary has changed and exact scores may not be reproducible. We expect distribution of scores to be similar.
 
 All experiments were conducted on a MacBook Pro with an Apple M2 Pro chip and 16 GB of memory, running macOS 14.6.1 (23G93).
 
@@ -311,7 +313,7 @@ Ultimately this meant not having any information, neither about the Python versi
 
 To ensure reproducibility, we created a Docker Compose YAML file that specifies the exact operating system and runtime versions. After a successful build, we also automatically dump the PIP environment to a \texttt{requirements.txt} file.
 
-Additionally, to ensure reproducibility, we set seeds for all common libraries such as \texttt{random}, \texttt{numpy}, \texttt{torch}, and \texttt{os} at the beginning of every file in the source code. This way, a single iteration is sufficient for evaluation. After resolving all environment-related issues by using the latest versions of the dependencies and letting PIP handle the version resolution, we successfully executed the code.
+Additionally, to ensure reproducibility, we set seeds for all common libraries such as \texttt{random}, \texttt{numpy}, \texttt{torch} and \texttt{os} at the beginning of every file in the source code. This way, a single iteration is sufficient for evaluation. After resolving all environment-related issues by using the latest versions of the dependencies and letting PIP handle the version resolution, we successfully executed the code.
 
 We observed that many functions in the codebase were deprecated due to missing backward compatibility of the dependencies. Consequently, we had to manually rewrite parts of the code to ensure compatibility with the latest library versions.
 
@@ -319,7 +321,56 @@ Specifically, we had to replace the deprecated ``df.append(d, ignore\_index=True
 
 \section{Key Findings}
 
+We ran statistical analyses on the reproduced results to compare them with the original results.
+
 % statistical analysis
+% Results for Deezer Scores:
+% T-test: statistic=0.22831692071150542, p-value=0.8194456338261875
+% Confidence intervals (95.0\%):
+% 	Actual: (51.994690848108995, 52.35325787987535)
+% 	Expected: (51.89433108979605, 52.383164017836044)
+% Variances:
+% 	Actual: 4.255412686851318
+% 	Expected: 7.909005487126354
+% KS-test: statistic=0.2035225048923679, p-value=1.1304443657367778e-09
+
+% Results for iTunes Scores:
+% T-test: statistic=14.412682128811188, p-value=5.31778508283801e-43
+% Confidence intervals (95.0\%):
+% 	Actual: (51.1179474752266, 51.406272094245026)
+% 	Expected: (49.34592616094821, 49.71904448484436)
+% Variances:
+% 	Actual: 2.7514677416295537
+% 	Expected: 4.607805379686121
+% KS-test: statistic=0.4520547945205479, p-value=2.055166401724473e-47
+% iTunes Scores Statistics:
+% Actual scores count: 511
+% Non-null actual scores: 511
+% Sample of actual scores: [51.6682, 51.369600000000005, 51.4062, 51.432599999999994, 52.913999999999994]
+
+\subsection{Deezer Scores Analysis}
+
+The t-test for Deezer Scores yielded a statistic of 0.2283 and a p-value of 0.8194. This high p-value (> 0.05) suggests that there is no statistically significant difference between the actual and expected Deezer Scores. We fail to reject the null hypothesis. In simpler terms, it means that we successfully reproduced the Deezer Scores.
+
+The 95\% confidence intervals for actual (51.9947, 52.3533) and expected (51.8943, 52.3832) Deezer Scores overlap considerably. This overlap further supports the conclusion that there is no significant difference between the actual and expected scores.
+
+The actual variance (4.2554) is lower than the expected variance (7.9090) for Deezer Scores. This suggests that the reproduced results have less spread than the original data, but it doesn't necessarily indicate a problem with the reproduction.
+
+The Kolmogorov-Smirnov (KS) Test for Deezer Scores resulted in a statistic of 0.2035 and a very low p-value (1.1304e-09). This low p-value suggests that there is a statistically significant difference in the distributions of the actual and expected scores, despite the similar means indicated by the t-test.
+
+The reproduction of Deezer Scores appears to be relatively successful. While the means are not significantly different (as shown by the t-test), there is some evidence of distributional differences (from the KS-test). This suggests that the central tendency of the scores was reproduced well, but there might be some differences in the shape or spread of the distributions. Figure~\ref{fig:dist-deezer} further validates this conclusion by showing the distribution of expected and actual Deezer Scores.
+
+\subsection{iTunes Scores Analysis}
+
+The t-test for iTunes Scores produced a statistic of 14.4127 and an extremely low p-value (5.3178e-43). This indicates a significant difference between the actual and expected iTunes Scores. The reproduction attempt for iTunes Scores appears to deviate significantly from the original results. In other words, the null hypothesis is rejected and the actual and expected scores are not equal.
+
+The 95\% confidence intervals for actual (51.1179, 51.4063) and expected (49.3459, 49.7190) iTunes Scores do not overlap at all.
+
+The actual variance (2.7515) is lower than the expected variance (4.6078) for iTunes Scores. Similar to the Deezer Scores, the reproduced results show less spread than the original data.
+
+The KS-test for iTunes Scores yielded a statistic of 0.4521 and an extremely low p-value (2.0552e-47). This further confirms a significant difference in the distributions of the actual and expected iTunes Scores.
+
+The reproduction of iTunes Scores shows significant deviations from the original results. Both the t-test and KS-test indicate substantial differences between the actual and expected scores. The confidence intervals do not overlap and the means are significantly different. This suggests that the reproduction attempt for iTunes Scores was not successful. Figure~\ref{fig:dist-itunes} visualizes this discrepancy.
 
 \begin{figure}[h]
   \centering
@@ -342,10 +393,15 @@ Specifically, we had to replace the deprecated ``df.append(d, ignore\_index=True
   \label{fig:dist-itunes}
 \end{figure}
 
+One general observation that applies to both Deezer and iTunes Scores is that the actual variances are consistently lower than the expected variances. This pattern suggests that the reproduced results have less spread than the original data. While this could indicate a systematic difference in how the scores were calculated or collected in the reproduction attempt, it could also be due to the smaller sample size of the reproduced data compared to the original data.
 
+It's also worth noting that we sampled 512 scores in total, which is a relatively large, when compared to the actual scores provided by the authors. This in itself could have introduced some bias in our results.
 
 \section{Conclusion}
 
+In this paper, we attempted to reproduce the evaluation of the NEiCE algorithm as presented by~\citet{valero2022topic}. We encountered several difficulties, including unresolvable issues such as the unavailability of the Spotify dataset, non-byte-aligned weights and missing dependency locks. We also faced resolved issues, such as deprecated functions, missing dependency versions and non-portable container configurations. Despite these challenges, we successfully executed the code and conducted a statistical analysis to compare our reproduced results with the original results.
+
+In conclusion, while the Deezer Scores reproduction seems reasonably successful with some caveats, the iTunes Scores reproduction shows significant differences from the original results. Further investigation into the methodology, data collection process and calculation methods for iTunes Scores would be warranted to understand the source of these discrepancies.
 
 %% The acknowledgments section is defined using the "acks" environment
 %% (and NOT an unnumbered section). This ensures the proper
