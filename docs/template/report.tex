@@ -50,6 +50,8 @@
 \usepackage{graphicx}
 \usepackage{longtable}
 
+\setlength{\parindent}{0pt}
+
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
 \AtBeginDocument{%
@@ -228,7 +230,7 @@ The optimization problem for NMF is formulated as minimizing the Frobenius norm 
 
 \subsection{Evaluation}
 
-The evaluation primarily uses CV topic coherence, which correlates best with human judgment of topic ranking. The CV score is calculated as:
+The evaluation primarily uses $C_V$ topic coherence, which correlates best with human judgment of topic ranking. The $C_V$ score is calculated as:
 
 $$ CV(k) = \frac{1}{T}\sum_{i=1}^{T} \cos(v_{NPMI}(t_i), v_{NPMI}(t_{1:T})) $$
 
@@ -244,18 +246,14 @@ The hyperparameters specified in the original paper are as follows:
     \item $\alpha^{ent}$ range: \{ 0.3, 0.4 \}
 \end{itemize}
 
-The experiments were conducted on an Intel Xeon Gold 6134 CPU @ 3.20GHz with 32 cores and 128GB RAM.
-
-The table~\ref{tab:authors-results} shows the topic coherence scores $C_V$ obtained by NEiCE for each ($\alpha^{word}$,$\alpha^{ent}$) configuration on the Deezer, Spotify and iTunes datasets.
-
-We want to reproduce this table and conduct a statistical analysis to evaluate our confidence in the results.
+Table~\ref{tab:authors-results} shows the topic coherence scores $C_V$ obtained by NEiCE for each ($\alpha^{word}$,$\alpha^{ent}$) configuration on the Deezer, Spotify and iTunes datasets. We want to reproduce this table and conduct a statistical analysis to evaluate our confidence in the authors' results.
 
 \begin{table}[h]
   \centering
   \begin{tabular}{lrrrrrrrrrrrr}
       \toprule
       Dataset & \multicolumn{4}{c}{Deezer} & \multicolumn{4}{c}{Spotify} & \multicolumn{4}{c}{iTunes} \\
-      & 20 & 50 & 100 & 200 & 20 & 50 & 100 & 200 & 20 & 50 & 100 & 200 \\
+      Algorithm ($\alpha^{word}$,$\alpha^{ent}$) $\downarrow$ $\mid$ $K$ $\rightarrow$ & 20 & 50 & 100 & 200 & 20 & 50 & 100 & 200 & 20 & 50 & 100 & 200 \\
       \midrule
       NEiCE (0.2, 0.3) & 50.2 & 48.9 & 51.4 & 48.4 & 51.7 & 49.0 & 45.2 & 46.5 & 49.3 & 43.3 & 49.5 & 47.0 \\
       NEiCE (0.2, 0.4) & 53.1 & 49.2 & 50.8 & 50.6 & 48.7 & 48.7 & 43.5 & 41.7 & 47.2 & 49.5 & 50.7 & 51.3 \\
@@ -267,7 +265,7 @@ We want to reproduce this table and conduct a statistical analysis to evaluate o
       NEiCE (0.5, 0.4) & 56.3 & 60.6 & 54.9 & 53.3 & 55.0 & 49.9 & 46.7 & 45.0 & 50.5 & 52.0 & 48.7 & 46.1 \\
       \bottomrule
   \end{tabular}
-  \caption{Topic coherence scores $C_V$ (in \%) obtained by NEiCE for each ($\alpha^{word}$,$\alpha^{ent}$) configuration on the Deezer, Spotify and iTunes datasets \textendash{} named ``Table 5'' in the original paper.}
+  \caption{Topic coherence scores $C_V$ (in \%) obtained by NEiCE for each ($\alpha^{word}$,$\alpha^{ent}$) configuration on the Deezer, Spotify and iTunes datasets as reported by~\citet{valero2022topic} (Table 5).}
   \label{tab:authors-results}
 \end{table}
 
