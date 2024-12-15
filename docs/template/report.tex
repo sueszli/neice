@@ -321,6 +321,32 @@ Specifically, we had to replace the deprecated ``df.append(d, ignore\_index=True
 
 We computed 512 possible hyperparameter configurations.
 
+
+% Results for Deezer Scores:
+% T-test: statistic=0.2283, p-value=0.8194
+% Confidence intervals (95.0%):
+%   Actual: (51.9947, 52.3533)
+%   Expected: (51.8943, 52.3832)
+% Variances:
+%   Actual: 4.255413
+%   Expected: 7.909005
+% KS-test: statistic=0.2035, p-value=0.0000
+
+% Results for iTunes Scores:
+% T-test: statistic=14.4127, p-value=0.0000
+% Confidence intervals (95.0%):
+%   Actual: (51.1179, 51.4063)
+%   Expected: (49.3459, 49.7190)
+% Variances:
+%   Actual: 2.751468
+%   Expected: 4.607805
+% KS-test: statistic=0.4521, p-value=0.0000
+% iTunes Scores Statistics:
+% Actual scores count: 511
+% Non-null actual scores: 511
+% Sample of actual scores: [51.6682, 51.369600000000005, 51.4062, 51.432599999999994, 52.913999999999994]
+
+
 % add figure
 \begin{figure}[h]
   \centering
@@ -328,6 +354,23 @@ We computed 512 possible hyperparameter configurations.
   \caption{Distribution of differences between our reproduced $C_V$ scores and the authors' reported scores.}
   \label{fig:diff}
 \end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figures/dist-deezer.png}
+  \caption{Distribution of expected and actual $C_V$ scores for the Deezer dataset.}
+  \label{fig:dist-deezer}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figures/dist-itunes.png}
+  \caption{Distribution of expected and actual $C_V$ scores for the iTunes dataset.}
+  \label{fig:dist-itunes}
+\end{figure}
+
+
+All experiments were conducted on a MacBook Pro with an Apple M2 Pro chip and 16 GB of memory, running macOS 14.6.1 (23G93).
 
 \section{Conclusion}
 
@@ -352,47 +395,47 @@ We computed 512 possible hyperparameter configurations.
 
 %%
 %% If your work has an appendix, this is the place to put it.
-\appendix
+% \appendix
 
-\section{System Specifications}
+% \section{System Specifications}
 
-All experiments were conducted on a consumer-grade laptop with the following specifications:
+% All experiments were conducted on a consumer-grade laptop with the following specifications:
 
-\begin{footnotesize}
-\begin{verbatim}
-$ system_profiler SPSoftwareDataType SPHardwareDataType
-Software:
+% \begin{footnotesize}
+% \begin{verbatim}
+% $ system_profiler SPSoftwareDataType SPHardwareDataType
+% Software:
 
-    System Software Overview:
+%     System Software Overview:
 
-      System Version: macOS 14.6.1 (23G93)
-      Kernel Version: Darwin 23.6.0
-      Boot Volume: Macintosh HD
-      Boot Mode: Normal
-      Computer Name: Yahya’s MacBook Pro
-      User Name: Yahya Jabary (sueszli)
-      Secure Virtual Memory: Enabled
-      System Integrity Protection: Enabled
-      Time since boot: 103 days, 2 hours, 59 minutes
+%       System Version: macOS 14.6.1 (23G93)
+%       Kernel Version: Darwin 23.6.0
+%       Boot Volume: Macintosh HD
+%       Boot Mode: Normal
+%       Computer Name: Yahya’s MacBook Pro
+%       User Name: Yahya Jabary (sueszli)
+%       Secure Virtual Memory: Enabled
+%       System Integrity Protection: Enabled
+%       Time since boot: 103 days, 2 hours, 59 minutes
 
-Hardware:
+% Hardware:
 
-    Hardware Overview:
+%     Hardware Overview:
 
-      Model Name: MacBook Pro
-      Model Identifier: Mac14,10
-      Model Number: <redacted>
-      Chip: Apple M2 Pro
-      Total Number of Cores: 12 (8 performance and 4 efficiency)
-      Memory: 16 GB
-      System Firmware Version: 10151.140.19
-      OS Loader Version: <redacted>
-      Serial Number (system): <redacted>
-      Hardware UUID: <redacted>
-      Provisioning UDID: <redacted>
-      Activation Lock Status: Disabled
-\end{verbatim}
-\end{footnotesize}
+%       Model Name: MacBook Pro
+%       Model Identifier: Mac14,10
+%       Model Number: <redacted>
+%       Chip: Apple M2 Pro
+%       Total Number of Cores: 12 (8 performance and 4 efficiency)
+%       Memory: 16 GB
+%       System Firmware Version: 10151.140.19
+%       OS Loader Version: <redacted>
+%       Serial Number (system): <redacted>
+%       Hardware UUID: <redacted>
+%       Provisioning UDID: <redacted>
+%       Activation Lock Status: Disabled
+% \end{verbatim}
+% \end{footnotesize}
 
 % \section{Results}
 
