@@ -240,7 +240,7 @@ The hyperparameters specified in the original paper are as follows:
 
 \begin{itemize}
     \item Number of top words ($T$): \{ 10 \}
-    \item Number of topics ($K$): \{ 20, 50, 100, 200 \} (we also include 500, as it is the default value in the codebase)
+    \item Number of topics ($K$): \{ 20, 50, 100, 200 \}
     \item REL confidence threshold: 0.9 for named entity linking
     \item $\alpha^{word}$ range: \{ 0.2, 0.3, 0.4, 0.5 \}
     \item $\alpha^{ent}$ range: \{ 0.3, 0.4 \}
@@ -318,6 +318,8 @@ Specifically, we had to replace the deprecated ``df.append(d, ignore\_index=True
 \section{Key Findings}
 
 % statistical analysis
+
+We computed 512 possible hyperparameter configurations.
 
 \section{Conclusion}
 

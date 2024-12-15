@@ -2,7 +2,7 @@ reproducing "Topic Modeling on Podcast Short-Text Metadata" by Valero et al. fro
 
 check out the report: https://sueszli.github.io/neice/docs/template/report.pdf
 
-this repository is a fork of https://github.com/deezer/podcast-topic-modeling/ @ commit `6a7865f7aad0db287a8e4d43d140d42b3a94537a`
+this repository is a fork of @deezer/podcast-topic-modeling at commit `6a7865f7aad0db287a8e4d43d140d42b3a94537a`
 
                      /|
        =  =  =      / |
