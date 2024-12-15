@@ -82,7 +82,7 @@
 %% Submission ID.
 %% Use this when submitting an article to a sponsored event. You'll
 %% receive a unique submission ID from the organizers
-%% of the event, and this ID should be used as the parameter to this command.
+%% of the event and this ID should be used as the parameter to this command.
 %%\acmSubmissionID{123-A56-BU3}
 
 %%
@@ -122,7 +122,7 @@
 %%
 %% The "author" command and its associated commands are used to define
 %% the authors and their affiliations.
-%% Of note is the shared affiliation of the first two authors, and the
+%% Of note is the shared affiliation of the first two authors and the
 %% "authornote" and "authornotemark" commands
 %% used to denote shared contribution to the research.
 \author{Yahya Jabary}\authornotemark[1]\email{jabaryyahya@gmail.com}\affiliation{\institution{TU Wien}\country{Austria}}
@@ -177,7 +177,7 @@
 %% the work being presented. Separate the keywords with commas.
 \keywords{Reproducibility, Information Retrieval}
 %% A "teaser" image appears between the author and affiliation
-%% information and the body of the document, and typically spans the
+%% information and the body of the document and typically spans the
 %% page.
 % \begin{teaserfigure}
 %   \includegraphics[width=\textwidth]{sampleteaser}
@@ -210,56 +210,45 @@ The NEiCE algorithm consists of a (1) preprocessing stage and a (2) topic modeli
 
 \subsubsection{Preprocessing Stage}
 
-The preprocessing stage begins with named entity identification in both the title and description fields of podcast metadata. The system employs the Radboud Entity Linker (REL) library for linking these entities to Wikipedia entries. Within this linking process, the Flair library, which utilizes embeddings, performs Named Entity Recognition (NER) to detect entity mentions. It then uses wikipedia2vec to identify unique candidates from a list of potential matches.
+The preprocessing stage begins with named entity recognition (NER) in both the title and description fields of podcast metadata. The system employs the Radboud Entity Linker (REL) library for linking these entities to Wikipedia entries. Within this linking process, the Flair library, which utilizes embeddings, performs Named Entity Recognition (NER) to detect entity mentions. It then uses wikipedia2vec to identify unique candidates from a list of potential matches.
 
-For each identified named entity, the system generates a Wikipedia page reference along with a confidence score. This score is crucial as it determines how the entity will be treated in subsequent processing \textendash{} either as a simple text span, as a confirmed named entity, or as individual words requiring separate processing.
+For each identified named entity, the system generates a Wikipedia page reference along with a confidence score. This score is crucial as it determines how the entity will be treated in subsequent processing \textendash{} either as a simple text span, as a confirmed named entity or as individual words requiring separate processing.
 
 The vocabulary cleaning phase incorporates the NameDataset library to eliminate overly common named entities such as actors and athletes that might not contribute meaningfully to topic identification. Following the cleaning process, the system applies a specialized NE-related re-weighting to the term frequency ($tf$) factor.
 
 The preprocessing stage handles different datasets with specific criteria. For both iTunes and Spotify datasets, the system removes duplicate titles and eliminates entries where the combined title and description contain fewer than three terms. The Spotify dataset undergoes additional language filtering, utilizing both fastText and CLD3 to ensure only English-language podcasts are retained. The Deezer dataset, which is the largest among the three, contains similar metadata including creator-provided information, titles, descriptions and show names in English. Across all datasets, genres with fewer than 300 shows are excluded to ensure robust topic modeling.
 
-
-
-% read: https://arxiv.org/abs/2201.04419
-
-% explain how the Topic Modeling Stage works. use same notation, use formal language, use the same notation.
-
-% use full sentences. no enumerations. no itemizations. no headers.
-
-
-
 \subsubsection{Topic Modeling Stage}
 
+The Topic Modeling Stage uses Non-negative Matrix Factorization (NMF) as the primary technique. It begins with the creation of a document-term matrix $X$, where each row represents a podcast and each column represents a term from the vocabulary. The matrix $X$ is then factorized into two non-negative matrices $W$ and $H$, such that $X \approx WH$. In this factorization, $W$ represents the document-topic matrix, while $H$ represents the topic-term matrix.
 
-% *computation*
+To enhance the topic modeling process, the authors propose the novel Entity-informed Contextual Embedding (NEiCE). This representation leverages named entities, which are often present in podcast metadata, to improve the quality of discovered topics. It combines contextual word embeddings with named entity information, allowing for a more nuanced and accurate topic modeling process.
 
-% - apply NE-related re-weighting to the tf factor
-
-
-
+The optimization problem for NMF is formulated as minimizing the Frobenius norm of the difference between $X$ and $WH$, subject to non-negativity constraints on $W$ and $H$. This is expressed mathematically as $\min(W,H\geq0) \cdot \|X - WH\|^2 F$. The resulting factorization provides a low-rank approximation of the original document-term matrix, with each column of $W$ representing a topic and each row of $H$ representing the importance of terms within that topic.
 
 \subsection{Evaluation}
 
-% *evaluation*
+The evaluation primarily uses CV topic coherence, which correlates best with human judgment of topic ranking. The CV score is calculated as:
 
-% - common metrics for "topic coherence" for topic quality
-% - normalized pointwise mutual information (NPMI) metric
-%     - computed with "Palmetto" for each topic $k$ on wikipdeia
-% - top words limit: 10
-% - top topics limit: 20, 50, 100, 200
-% - REL confidence threshold: 0.9
-% - drop words that appear in less than 5 documents
-% - remove stopwords using NLTK
-% - default hyperparams for all models
-% - original cluwords is evaluated on fastText and wikipedia2vec embeddings
-% - neice config:
-%     - alpha-word set to 0.34-0.4 because of cluwords (test range: 0.2, 0.3, 0.4, 0.5)
-%     - alpha-ent set similarly
-% - specs: Intel Xeon Gold 6134 CPU @ 3.20GHz with 32 cores and 128GB RAM
+$$ CV(k) = \frac{1}{T}\sum_{i=1}^{T} \cos(v_{NPMI}(t_i), v_{NPMI}(t_{1:T})) $$
 
-% For evaluation purposes, the system implements specific preprocessing parameters: a REL confidence threshold of 0.9, removal of words appearing in fewer than 5 documents, and elimination of stopwords using NLTK. The NEiCE configuration employs alpha-word values between 0.34-0.4, based on cluwords testing across a range of 0.2 to 0.5, with alpha-ent parameters set similarly.
+where $T$ is the number of top words per topic, NPMI vectors are computed using Wikipedia as the external corpus and the final coherence is averaged across all $K$ topics.
 
-In short, we want to reproduce table~\ref{tab:authors-results} and conduct a statistical analysis to evaluate our confidence in the results.
+The hyperparameters specified in the original paper are as follows:
+
+\begin{itemize}
+    \item Number of top words ($T$): \{ 10 \}
+    \item Number of topics ($K$): \{ 20, 50, 100, 200 \}
+    \item REL confidence threshold: 0.9 for named entity linking
+    \item $\alpha^{word}$ range: \{ 0.2, 0.3, 0.4, 0.5 \}
+    \item $\alpha^{ent}$ range: \{ 0.3, 0.4 \}
+\end{itemize}
+
+The experiments were conducted on an Intel Xeon Gold 6134 CPU @ 3.20GHz with 32 cores and 128GB RAM.
+
+The table~\ref{tab:authors-results} shows the topic coherence scores $C_V$ obtained by NEiCE for each ($\alpha^{word}$,$\alpha^{ent}$) configuration on the Deezer, Spotify and iTunes datasets.
+
+We want to reproduce this table and conduct a statistical analysis to evaluate our confidence in the results.
 
 \begin{table}[h]
   \centering
@@ -281,7 +270,6 @@ In short, we want to reproduce table~\ref{tab:authors-results} and conduct a sta
   \caption{Topic coherence scores $C_V$ (in \%) obtained by NEiCE for each ($\alpha^{word}$,$\alpha^{ent}$) configuration on the Deezer, Spotify and iTunes datasets \textendash{} named ``Table 5'' in the original paper.}
   \label{tab:authors-results}
 \end{table}
-
 
 \section{Strategies}
 
@@ -345,14 +333,14 @@ In short, we want to reproduce table~\ref{tab:authors-results} and conduct a sta
 %%
 %% The acknowledgments section is defined using the "acks" environment
 %% (and NOT an unnumbered section). This ensures the proper
-%% identification of the section in the article metadata, and the
+%% identification of the section in the article metadata and the
 %% consistent spelling of the heading.
 % \begin{acks}
 % To Robert, for the bagels and explaining CMYK and color spaces.
 % \end{acks}
 
 %%
-%% The next two lines define the bibliography style to be used, and
+%% The next two lines define the bibliography style to be used and
 %% the bibliography file.
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{sample-base}
